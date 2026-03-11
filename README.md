@@ -268,4 +268,31 @@ Unfortunately, JSON does not support any form of explicit type declarations, so 
 ## Comments
 ## Prolog
 
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Age</th>
+      <th>Role</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Alice</td>
+      <td>30</td>
+      <td>Developer</td>
+    </tr>
+    <tr>
+      <td>Bob</td>
+      <td>25</td>
+      <td>Designer</td>
+    </tr>
+    <tr>
+      <td>Charlie</td>
+      <td>28</td>
+      <td>Manager</td>
+    </tr>
+  </tbody>
+</table>
+
 [^1]: https://www.w3.org/TR/xml/#sec-origin-goals
