@@ -184,8 +184,8 @@ Unfortunately, JSON does not support any form of explicit type declarations, so 
 
 
 
-- mapping string, custom hybrids to null, boolean, number, string, array, object
-- plist dict to object? Other types?
+- mapping string, custom hybrids to null, boolean, number, string, array, object[^1]
+- plist dict to object? Other types?[^2]
 
 ## 5. Converting comments
 ## 6. Converting the prolog
