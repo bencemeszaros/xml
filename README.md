@@ -123,7 +123,7 @@ If we want true equivalence we would need to add a new hybrid structure to JSON 
 > arr[0]; //"foo"
 > arr["0"]; //"foo" (works as any other property)
 > arr["bar"]; //"baz" (stored directly on the array)
-```
+> ```
 
 
 ## 4. Converting XML tag names
