@@ -22,7 +22,7 @@ XML supports only one default type `string` but it supports any custom type exte
 The opening tag contains the tag name and the attribute list while the element content is between the opening and closing tags. Nominal members can only be of type `string`, while ordinal members can be an arbitrary mix of type `string` and any custom types. If there are no ordinal members, the opening tag can be merged with the closing tag, forming a so-called self-closing tag or empty element.
 
 > [!CAUTION]
-> The official name is empty element, which is demonstrably incorrect terminology. "Empty" elements can, in fact hold data as nominal members, they just don't hold any ordinal members. We will avoid this terminology as it is highly misleading, especially in glaring examples like this (and even more so in its counterpart in HTML):
+> It's officially called empty element, which is demonstrably incorrect terminology. "Empty" elements can, in fact hold data as nominal members, they just don't hold any ordinal members. We will avoid this terminology as it is highly misleading, especially in glaring examples like this (and even more so in its counterpart in HTML):
 > ```xml
 > <img src="image.png"/>
 > ```
