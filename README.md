@@ -113,7 +113,8 @@ If we want true equivalence we would need to add a new hybrid structure to JSON 
 )
 ```
 
-> Note: this is exactly how arrays work in JS, we just can't define them via a single literal. In JS (almost) everything is an object, including arrays, so we can set arbitrary properties on them. In fact, array indices can work the same as any other property:
+> [!NOTE]
+> This is exactly how arrays work in JS, we just can't define them via a single literal. In JS (almost) everything is an object, including arrays, so we can set arbitrary properties on them. In fact, array indices can work the same as any other property:
 
 ```js
 const arr = ["foo"]; //define ordinal members
