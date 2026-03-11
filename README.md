@@ -1,23 +1,23 @@
 # On the Structural Non-Equivalence of XML and JSON
 
-### ABSTRACT
+## ABSTRACT
 JSON cannot faithfully represent XML data. This is because of the mismatch between the types and declarations they support, but ultimately because unlike JSON, XML and by extension SGML and all SGML-like languages are inherently incapable of faithfully representing structured data in the first place. In this document, we demonstrate the structural differences between XML and JSON and highlight the fundamental design flaws in XML that make it a poor choice for storing structured data, using trivial examples.
 
-## 1. Introduction
+## Introduction
 - artificial nodes
 - artificial properties
 
-## 2. Anatomy of XML
+## Anatomy of XML
+
+XML supports one built-in type `string`, any number of custom types extending a base element type and comments. In contrast, JSON supports six built–in types: `null` `boolean` `number` `string` `array` and `object`, no custom types and no comments.
 
 - tag name, attribute list, element content between the opening and closing tags, two data types (default and custom)
 - anatomy of JSON: six data types (default only)
 
-## 3. Converting XML elements
-
+## Elements
 The naive assumption is that an element is equivalent to an array or an object. This is only true in special edge cases, specifically if the XML element has either ordinal members (element content) or nominal members (attribute list) exclusively.
 
 - An XML element with only an ordinal part (element content only) would equate to an array:
-
 ```xml
 <__>foo</__>
 ```
@@ -26,7 +26,6 @@ The naive assumption is that an element is equivalent to an array or an object. 
 ```
 
 - And an XML element with only a nominal part (attribute list only) would equate to an object:
-
 ```xml
 <__ foo="bar" />
 ```
@@ -37,7 +36,6 @@ The naive assumption is that an element is equivalent to an array or an object. 
 Aside from the fact that processing a JSON with alternating arrays and objects would be highly confusing, if an element has both ordinal and nominal members this convention wouldn't even work. For generic XML elements neither a single array nor a single object would suffice. Here, the next naive assumption is that a combination of an array and an object would work, but the resulting combination would not be equivalent to the original element, since an element holds ordinal and nominal members within a single construct.
 
 Suppose we have a complex XML element:
-
 ```xml
 <__ foo="bar">baz</__>
 ```
@@ -45,7 +43,6 @@ Suppose we have a complex XML element:
 If we try to approximate this element with a combination of an array and an object we only have two options: we can either nest an array into an object or an object into an array.
 
 - If we nest an array into an object we also need a surrogate property and a naming convention to avoid clashing with an existing attribute. A common approach is to use a name that would be invalid as an attribute:
-
 ```json
 {
     "foo": "bar",
@@ -54,7 +51,6 @@ If we try to approximate this element with a combination of an array and an obje
 ```
 
 - If we nest an object into an array the result is ambiguous and we also need a convention to define how we manipulate the indices within the element content:
-
 ```json
 [
     {"foo": "bar"},
@@ -62,10 +58,9 @@ If we try to approximate this element with a combination of an array and an obje
 ]
 ```
 
-Regardless of our choice, both options produce a different graph: instead of a single graph vertex we always need two. In practical terms, the JSON graph keeps doubling per each XML element and its depth keeps increasing (or even outright doubling):
+Regardless of our choice, both options produce a different graph: instead of a single graph vertex we always need two. (In practical terms, the JSON graph is twice as big as the XML graph and its depth keeps increasing (or even outright doubling)):
 
 For example, an XML graph with 3 vertices and a depth of 3:
-
 ```xml
 <__>
   <__>
@@ -75,7 +70,6 @@ For example, an XML graph with 3 vertices and a depth of 3:
 ```
 
 - would equate either to a JSON graph with 6 vertices and a depth of 6:
-
 ```json
 {
   "@children": [
@@ -91,7 +85,6 @@ For example, an XML graph with 3 vertices and a depth of 3:
 ```
 
 - or at the minimum to a JSON graph with 6 vertices and a depth of 4:
-
 ```json
 [
   {},
@@ -105,7 +98,6 @@ For example, an XML graph with 3 vertices and a depth of 3:
 ```
 
 If we want true equivalence we would need to add a new hybrid structure to JSON that merges, not combines, an ordinal and a nominal structure. This would also work for all three types of XML elements:
-
 ```pseudo-json
 (
     "foo": "bar",
@@ -125,8 +117,94 @@ If we want true equivalence we would need to add a new hybrid structure to JSON 
 > arr["bar"]; //"baz" (stored directly on the array)
 > ```
 
+## Whitespace
+The treatment of whitespace in XML is inconsistent across contexts. In the attribute list around names and values it is always treated as formatting and thus discarded, but in the element content it is always treated as actual content and fully preserved by default. This has far reaching consequences.
 
-## 4. Converting XML tag names
+For example, the following two examples are equivalent:
+```xml
+<__ foo="bar"/>
+```
+```xml
+<__
+  foo
+    =
+      "bar"
+        />
+```
+
+but the following two are not:
+```xml
+<__>foo</__>
+```
+```xml
+<__>
+  foo
+</__>
+```
+
+This becomes apparent if we convert the last example to a JSON array:
+```json
+["\n  foo\n"]
+```
+
+But beyond inconsistency and non-equivalence the biggest issue is data corruption. Since XML provides no boundary between content and formatting, whitespace added simply to make the code readable for humans bleeds into and alters the actual data. Once formatting and data is mixed together, it is practically impossible to separate the two.
+
+> [!NOTE]
+> Whitespace bleeding is a significant issue in HTML as well. One common example is when inline-block elements are indented, for example when describing a horizontal menu:
+> ```html
+> <style>li {display: inline-block}</style>
+> <ul>
+>   <li>foo</li>
+>   <li>bar</li>
+>   <li>baz</li>
+> </ul>
+> ```
+> This renders as `foo` `bar` `baz` instead of `foobarbaz` because formatting whitespace is preserved between elements. To keep the semblance of indentation but remove unwanted whitespace, one approach exploits the very inconsistency we just described:
+> ```html
+> <ul
+>   ><li>foo</li
+>   ><li>bar</li
+>   ><li>baz</li
+> ></ul>
+> ```
+> It is difficult to classify this, or any similar approach, as an actual solution to the problem.
+
+In contrast, JSON clearly defines a boundary between content and formatting: whitespace added inside a string is fully preserved, whitespace added outside a string is fully discarded, there is no possibility of formatting whitespace corrupting the data:
+
+```json
+[
+  "foo"    ,    "bar"
+  ,    "baz"
+    ]
+```
+
+At best, whitespace bleeding makes XML unsuitable for storing structured data, at worst, it is a major design flaw of the language because it prevents XML from fulfilling its stated objectives: it is either "human-legible and reasonably clear" or "easy to process", but not both.[^1]
+
+## Text nodes
+This leads to another unsolvable dilemma:
+- If we treat pure text and child elements the same inside the element content, this example would equate to a JSON like this:
+
+```json
+[
+  "\n  ",
+  ["Dogs"],
+  "\n  chase\n  ",
+  ["cats"],
+  "\n"
+]
+```
+
+- And if we somehow separate them, we won’t be able to reconstruct the original order:
+
+```json
+{
+  "@children": [
+    {
+```
+
+Even in trivial cases it is very difficult, or even impossible, to separate whitespace we want to keep as data from whitespace we want to discard as formatting.
+
+## Tag names
 
 XML tag names are essentially type declarations. We can demonstrate this by comparing an XML element to a JS class. A simple XML element like this:
 
@@ -184,17 +262,10 @@ Unfortunately, JSON does not support any form of explicit type declarations, so 
 
 
 
-- mapping string, custom hybrids to null, boolean, number, string, array, object[^1]
-- plist dict to object? Other types?[^2]
+- mapping string, custom hybrids to null, boolean, number, string, array, object
+- plist dict to object? Other types?
 
-## 5. Converting comments
-## 6. Converting the prolog
+## Comments
+## Prolog
 
-[^1]: My reference.
-[^2]: To add line breaks within a footnote, add 2 spaces to the end of a line.  
-This is a second line.
-
-| First Header  | Second Header |
-| ------------- | ------------- |
-| Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  |
+[^1] https://www.w3.org/TR/xml/#sec-origin-goals
