@@ -190,6 +190,10 @@ Unfortunately, JSON does not support any form of explicit type declarations, so 
 ## 5. Converting comments
 ## 6. Converting the prolog
 
+[^1]: My reference.
+[^2]: To add line breaks within a footnote, add 2 spaces to the end of a line.  
+This is a second line.
+
 | First Header  | Second Header |
 | ------------- | ------------- |
 | Content Cell  | Content Cell  |
