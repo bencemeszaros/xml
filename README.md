@@ -2,7 +2,7 @@
 
 ## ABSTRACT
 
-JSON cannot faithfully represent XML data. This is because of the mismatch between the types and declarations they support, but ultimately because unlike JSON, XML and by extension SGML and all SGML-like languages are inherently incapable of faithfully representing structured data themselves. In this document, we demonstrate the structural differences between XML and JSON and highlight the fundamental limitations in XML that make it a poor choice for storing structured data, using trivial examples.
+JSON cannot faithfully represent XML data. This is because they support different types and declarations, but ultimately because unlike JSON, XML and by extension SGML and all SGML-like languages are inherently incapable of faithfully representing structured data themselves. In this document, we demonstrate the structural differences between XML and JSON and highlight the fundamental limitations in XML that make it a poor choice for storing structured data, using trivial examples.
 
 ## Introduction
 
@@ -13,7 +13,13 @@ Before analyzing the equivalence between XML and JSON, it is useful to provide a
 
 ## Anatomy of XML
 
-XML supports only one default type `string` but it supports any custom type extending an abstract `element` type. This abstract type has three components: a mandatory type declaration called tag name, an optional nominal part called attribute list and an optional ordinal part called element content. The opening tag contains the tag name and the attribute list while the element content is between the opening and closing tags. Nominal members can only be of type `string`, while ordinal members can be an arbitrary mix of type `string` and any custom types. If there are no ordinal members, the opening tag can be merged with the closing tag, forming a so-called self-closing tag or empty element.
+XML is still widely used as a data interchange format to store and transmit data so in this document we will assess it from this perspective.
+
+- storing, transmitting and reconstructing structured data and determine whether it is suitable for this purpose 
+
+XML supports only one default type `string` but it supports any custom type extending an abstract `element` type. This abstract type has three components: a mandatory type declaration called tag name, an optional nominal part called attribute list and an optional ordinal part called element content.
+
+The opening tag contains the tag name and the attribute list while the element content is between the opening and closing tags. Nominal members can only be of type `string`, while ordinal members can be an arbitrary mix of type `string` and any custom types. If there are no ordinal members, the opening tag can be merged with the closing tag, forming a so-called self-closing tag or empty element.
 
 > [!CAUTION]
 > The official name is empty element, which is demonstrably incorrect terminology. "Empty" elements can, in fact hold data as nominal members, they just don't hold any ordinal members. We will avoid this terminology as it is highly misleading, especially in glaring examples like this (and even more so in its counterpart in HTML):
@@ -27,21 +33,6 @@ In addition, XML supports comments that conceptually act as self-closing tags wi
 <tag-name attribute-name="attribute-value">element content</tag-name>
 <self-closing-tag />
 <!-- comment -->
-```
-
-## Anatomy of JSON
-
-JSON supports six default types: `null`, `boolean`, `number`, `string`, an ordinal structure called `array` and a nominal structure called `object` but it doesn't support any custom types. `array` and `object` can contain arbitrary number of members of any type, including themselves. JSON doesn't support comments. The syntax is much more straightforward, since all data types have a mandatory form:
-
-```JSON
-{
-  "null": null,
-  "boolean": true,
-  "number": 30,
-  "string": "foo",
-  "array": [],
-  "object": {}
-}
 ```
 
 ## Converting Elements
