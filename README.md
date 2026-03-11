@@ -267,32 +267,6 @@ Unfortunately, JSON does not support any form of explicit type declarations, so 
 
 ## Comments
 ## Prolog
-
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Age</th>
-      <th>Role</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Alice</td>
-      <td>30</td>
-      <td>Developer</td>
-    </tr>
-    <tr>
-      <td>Bob</td>
-      <td>25</td>
-      <td>Designer</td>
-    </tr>
-    <tr>
-      <td>Charlie</td>
-      <td>28</td>
-      <td>Manager</td>
-    </tr>
-  </tbody>
-</table>
+<table aria-labelledby="images"><thead><tr><th scope="col">Context</th><th scope="col">Relative Link</th></tr></thead><tbody><tr><td>In a <code>.md</code> file on the same branch</td><td><code>/<wbr>assets/<wbr>images/<wbr>electrocat.png</code></td></tr><tr><td>In a <code>.md</code> file on another branch</td><td><code>/<wbr>../<wbr>main/<wbr>assets/<wbr>images/<wbr>electrocat.png</code></td></tr><tr><td>In issues, pull requests and comments of the repository</td><td><code>../<wbr>blob/<wbr>main/<wbr>assets/<wbr>images/<wbr>electrocat.png?raw=true</code></td></tr><tr><td>In a <code>.md</code> file in another repository</td><td><code>/<wbr>../<wbr>../<wbr>../<wbr>../<wbr>github/<wbr>docs/<wbr>blob/<wbr>main/<wbr>assets/<wbr>images/<wbr>electrocat.png</code></td></tr><tr><td>In issues, pull requests and comments of another repository</td><td><code>../<wbr>../<wbr>../<wbr>github/<wbr>docs/<wbr>blob/<wbr>main/<wbr>assets/<wbr>images/<wbr>electrocat.png?raw=true</code></td></tr></tbody></table>
 
 [^1]: https://www.w3.org/TR/xml/#sec-origin-goals
