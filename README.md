@@ -2,7 +2,7 @@
 
 ## ABSTRACT
 
-JSON cannot faithfully represent XML data. This is because they support different types and declarations, but ultimately because unlike JSON, XML and by extension SGML and all SGML-like languages are inherently incapable of faithfully representing structured data themselves. In this document, we demonstrate the structural differences between XML and JSON and highlight the fundamental limitations in XML that make it a poor choice for storing structured data, using trivial examples.
+JSON cannot faithfully represent XML data. This is because they support different types and declarations, but ultimately because unlike JSON, SGML and all its derivative languages including XML cannot faithfully represent structured data themselves. In this document, we demonstrate the structural differences between XML and JSON and highlight the fundamental limitations in XML that make it a poor choice for representing structured data, using trivial examples.
 
 ## Introduction
 
