@@ -116,14 +116,14 @@ If we want true equivalence we would need to add a new hybrid structure to JSON 
 > [!NOTE]
 > This is exactly how arrays work in JS, we just can't define them via a single literal. In JS (almost) everything is an object, including arrays, so we can set arbitrary properties on them. In fact, array indices can work the same as any other property:
 >
->```js
->const arr = ["foo"]; //define ordinal members
->arr.bar = "baz"; //define nominal members
+> ```js
+> const arr = ["foo"]; //define ordinal members
+> arr.bar = "baz"; //define nominal members
 >
->arr[0]; //"foo"
->arr["0"]; //"foo" (works as any other property)
->arr["bar"]; //"baz" (stored directly on the array)
->```
+> arr[0]; //"foo"
+> arr["0"]; //"foo" (works as any other property)
+> arr["bar"]; //"baz" (stored directly on the array)
+> ```
 
 
 ## 4. Converting XML tag names
