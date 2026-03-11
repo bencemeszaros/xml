@@ -189,3 +189,8 @@ Unfortunately, JSON does not support any form of explicit type declarations, so 
 
 ## 5. Converting comments
 ## 6. Converting the prolog
+
+| First Header  | Second Header |
+| ------------- | ------------- |
+| Content Cell  | Content Cell  |
+| Content Cell  | Content Cell  |
