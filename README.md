@@ -6,7 +6,7 @@ JSON cannot faithfully represent XML data. This is because XML and JSON support 
 
 ## Introduction
 
-Today, XML is still widely used as a data interchange format. Thus, it is reasonable to expect that it is compatible with, or at the very least comparable to JSON, a language specifically designed for this purpose. In this document we will assess XML from this particular perspective, as a language used to store, transmit and reconstruct structured data.
+Today, XML is still widely used as a data interchange format. Thus, it is reasonable to expect that it is compatible with, or at the very least comparable to JSON, a language specifically designed for this purpose. In this document we will assess XML from this particular perspective, as a language used to "store, transmit and reconstruct structured data".[^1]
 
 Also, throughout this document we will refer to two language agnostic abstract structures that form the basis of structured data: ordinal and nominal structures.
 
@@ -18,7 +18,10 @@ Finally, this document is a practical guide, not a theoretical or academic analy
 
 ## Anatomy of XML
 
-From a data standpoint we can say that XML supports only one default type `string` but it supports any custom type extending an abstract `element` type. This abstract type has three components: a mandatory type declaration called tag name, an optional nominal part called attribute list and an optional ordinal part called element content.
+From a data standpoint we can say that XML supports only one default type `string` but it supports any custom type extending an abstract `element` type. This abstract type has three components:
+- a mandatory type declaration, called the *tag name*;
+- an optional nominal part, called the *attribute list*; and
+- an optional ordinal part, called the *element content*.
 
 The opening tag contains the tag name and the attribute list while the element content is between the opening and closing tags. Nominal members can only be of type `string`, while ordinal members can be an arbitrary mix of type `string` and any custom types. If there are no ordinal members, the opening tag can be merged with the closing tag, forming a so-called self-closing tag or empty element.
 
@@ -243,7 +246,7 @@ In contrast, JSON clearly defines a boundary between content and formatting: whi
     ]
 ```
 
-At best, whitespace bleeding makes XML unsuitable for storing structured data, at worst, it is a major design flaw of the language because it prevents XML from fulfilling one of its stated objectives: it is either "human-legible and reasonably clear" or "easy to process", but not both.[^1]
+At best, whitespace bleeding makes XML unsuitable for storing structured data, at worst, it is a major design flaw of the language because it prevents XML from fulfilling one of its stated objectives: it is either "human-legible and reasonably clear" or "easy to process", but not both.[^2]
 
 ## Converting Tag Names (draft only)
 
@@ -306,4 +309,5 @@ Unfortunately, JSON does not support any form of explicit type declarations, so 
 ## Converting Comments (merge with text nodes/whitespace?)
 ## Converting the Prolog (maybe not important)
 
-[^1]: https://www.w3.org/TR/xml/#sec-origin-goals
+[^1]: https://en.wikipedia.org/wiki/XML
+[^2]: https://www.w3.org/TR/xml/#sec-origin-goals
