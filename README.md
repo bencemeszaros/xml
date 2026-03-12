@@ -42,7 +42,7 @@ The naive assumption is that an element is equivalent to an array or an object. 
 - An XML element with only an ordinal part would equate to an array:
 
 ```xml
-<__>foo</__>
+<_>foo</_>
 ```
 ```json
 ["foo"]
