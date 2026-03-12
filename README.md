@@ -215,7 +215,7 @@ This becomes apparent if we faithfully convert the last example to an array:
 ["\n  foo\n"]
 ```
 
-But beyond inconsistency and non-equivalence the biggest issue is data corruption. Since XML provides no boundary between content and formatting, whitespace added simply to make the code readable for humans bleeds into and alters the actual data. Once formatting and data is mixed together it is practically impossible to separate the two.
+But beyond inconsistency and non-equivalence the biggest issue is data corruption. Since XML provides no boundary between content and formatting, whitespace added simply to make the code readable for humans bleeds into and alters the actual data. Once content and formatting are mixed together it is practically impossible to separate the two.
 
 > [!CAUTION]
 > Whitespace bleeding is a significant issue in HTML as well. One common example is when inline-block elements are indented, for example when describing a horizontal menu:
