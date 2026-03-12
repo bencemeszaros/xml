@@ -2,27 +2,28 @@
 
 ## ABSTRACT
 
-JSON cannot faithfully represent XML data. This is because they support different types and declarations, but ultimately because unlike JSON, SGML and all its derivative languages including XML cannot faithfully represent structured data themselves. In this document, we demonstrate the structural differences between XML and JSON and highlight the fundamental limitations in XML that make it a poor choice for representing structured data, using trivial examples.
+JSON cannot faithfully represent XML data. This is because XML and JSON support vastly different types and declarations, but ultimately because unlike JSON, SGML and all its derivative languages including XML, cannot faithfully represent structured data themselves. In this document, we demonstrate the structural differences between XML and JSON and highlight the fundamental limitations in XML that make it a poor choice for representing structured data, using trivial examples.
 
 ## Introduction
 
-- explain ordinal and nominal structures
-- explain that we assess XML as a language used for storing, transmitting, and reconstructing data
+Today, XML is still widely used as a data interchange format. Thus, it is reasonable to expect that it is compatible with, or at the very least comparable to JSON, a language specifically designed for this purpose. In this document we will assess XML from this particular perspective, as a language used to store, transmit and reconstruct structured data.
 
-Before analyzing the equivalence between XML and JSON, it is useful to provide a brief overview of the basic capabilities of the two languages.
+Also, throughout this document we will refer to two language agnostic abstract structures that form the basis of structured data: ordinal and nominal structures.
+
+**Ordinal structures** store data pieces (members) one after another, using a pre-determined order. Meaning is derived from this order thus the schema is not included with the data. They are also called indexed, ordered, positional or sequential structures, or lists, sets or sequences.
+
+**Nominal structures** store data pieces (members) as associations, usually as key-value pairs, without regard to their order. Meaning is derived from the specific associations thus the schema is included with the data. They are also called associative, keyed, labeled, mapped or named structures, or dictionaries, maps or objects.
+
+Finally, this document is a practical guide, not a theoretical or academic analysis. It also presumes that the reader has a basic working knowledge of both XML and JSON.
 
 ## Anatomy of XML
 
-XML is still widely used as a data interchange format to store and transmit data so in this document we will assess it from this perspective.
-
-- storing, transmitting and reconstructing structured data and determine whether it is suitable for this purpose 
-
-XML supports only one default type `string` but it supports any custom type extending an abstract `element` type. This abstract type has three components: a mandatory type declaration called tag name, an optional nominal part called attribute list and an optional ordinal part called element content.
+From a data standpoint we can say that XML supports only one default type `string` but it supports any custom type extending an abstract `element` type. This abstract type has three components: a mandatory type declaration called tag name, an optional nominal part called attribute list and an optional ordinal part called element content.
 
 The opening tag contains the tag name and the attribute list while the element content is between the opening and closing tags. Nominal members can only be of type `string`, while ordinal members can be an arbitrary mix of type `string` and any custom types. If there are no ordinal members, the opening tag can be merged with the closing tag, forming a so-called self-closing tag or empty element.
 
 > [!CAUTION]
-> It's officially called empty element, which is demonstrably incorrect terminology. "Empty" elements can, in fact hold data as nominal members, they just don't hold any ordinal members. We will avoid this terminology as it is highly misleading, especially in glaring examples like this (and even more so in its counterpart in HTML):
+> The official name is empty element, which is demonstrably incorrect terminology. 'Empty' elements can, in fact hold data as nominal members, they just don't hold any ordinal members. We will avoid this terminology as it is highly misleading, especially in glaring examples like this (and even more so in HTML):
 > ```xml
 > <img src="image.png"/>
 > ```
@@ -31,15 +32,28 @@ In addition, XML supports comments that conceptually act as self-closing tags wi
 
 ```xml
 <tag-name attribute-name="attribute-value">element content</tag-name>
-<self-closing-tag />
+<self-closing-tag/>
 <!-- comment -->
+```
+
+For simplicity, we will use the abstract element type throughout this document (element without a tag name) until we discuss tag names:
+
+```xml
+<_>
 ```
 
 ## Converting Elements
 
-The naive assumption is that an element is equivalent to an array or an object. This is only true in special edge cases, specifically if the XML element contains either ordinal or nominal members exclusively.
+The naive assumption is that an element is equivalent to an object. This is only true for a specific subset of elements, namely if they contain only nominal members:
 
-- An XML element with only an ordinal part would equate to an array:
+```xml
+<_ foo="bar"/>
+```
+```json
+{"foo": "bar"}
+```
+
+But it is entirely possible that an element contains only ordinal members, in which case it is equivalent to an array instead:
 
 ```xml
 <_>foo</_>
@@ -48,21 +62,12 @@ The naive assumption is that an element is equivalent to an array or an object. 
 ["foo"]
 ```
 
-- While an XML element with only a nominal part would equate to an object:
-
-```xml
-<__ foo="bar" />
-```
-```json
-{"foo": "bar"}
-```
-
-Aside from the fact that processing a JSON with alternating arrays and objects would be highly confusing, if an element has both ordinal and nominal members this convention wouldn't even work since neither a single array nor a single object would suffice. Here, the next naive assumption is that for complex elements a combination of an array and an object would suffice, but the resulting combination would not be equivalent to the original element, since an element holds ordinal and nominal members within a single construct.
+Then, of course there is the third subset of elements that have both ordinal and nominal members. Here, the next naive assumption is that for these elements a combination of an array and an object would suffice, but this would produce a different graph since an element holds ordinal and nominal members within a single construct.
 
 Suppose we have a complex XML element:
 
 ```xml
-<__ foo="bar">baz</__>
+<_ foo="bar">baz</_>
 ```
 
 If we try to approximate this element with a combination of an array and an object we only have two options: we can either nest an array into an object or an object into an array.
@@ -85,16 +90,16 @@ If we try to approximate this element with a combination of an array and an obje
 ]
 ```
 
-Regardless, both options produce a different graph: instead of a single graph vertex we always need two. In practical terms, our JSON graph will be twice as big and twice as deep as our original XML graph.
+Regardless of our choice, both options produce a different graph: instead of a single graph vertex we always need two. In practical terms, our JSON graph will be twice as big and twice as deep as our original XML graph.
 
 For example, an XML graph with 3 vertices and a depth of 3:
 
 ```xml
-<__>
-  <__>
-    <__></__>
-  </__>
-</__>
+<_>
+  <_>
+    <_></_>
+  </_>
+</_>
 ```
 
 - would equate to a JSON graph with 6 vertices and a depth of 6:
@@ -173,35 +178,35 @@ This leads to another unsolvable dilemma:
 
 Even in trivial cases it is very difficult, or even impossible, to separate whitespace we want to keep as data from whitespace we want to discard as formatting.
 
-## Converting Whitespace
+## Converting Whitespace (combine this with text nodes)
 
 The treatment of whitespace in XML is inconsistent across contexts. In the attribute list around names and values it is always treated as formatting and thus discarded, but in the element content it is always treated as actual content and fully preserved by default. This has far reaching consequences.
 
 For example, the following two examples are equivalent:
 
 ```xml
-<__ foo="bar"/>
+<_ foo="bar"/>
 ```
 ```xml
-<__
+<_
   foo
     =
       "bar"
         />
 ```
 
-but the following two are not:
+But the following two are not:
 
 ```xml
-<__>foo</__>
+<_>foo</_>
 ```
 ```xml
-<__>
+<_>
   foo
-</__>
+</_>
 ```
 
-This becomes apparent if we convert the last example to a JSON array:
+This becomes apparent if we faithfully convert the last example to an array:
 
 ```json
 ["\n  foo\n"]
@@ -209,7 +214,7 @@ This becomes apparent if we convert the last example to a JSON array:
 
 But beyond inconsistency and non-equivalence the biggest issue is data corruption. Since XML provides no boundary between content and formatting, whitespace added simply to make the code readable for humans bleeds into and alters the actual data. Once formatting and data is mixed together it is practically impossible to separate the two.
 
-> [!NOTE]
+> [!CAUTION]
 > Whitespace bleeding is a significant issue in HTML as well. One common example is when inline-block elements are indented, for example when describing a horizontal menu:
 > ```html
 > <style>li {display: inline-block}</style>
@@ -219,7 +224,7 @@ But beyond inconsistency and non-equivalence the biggest issue is data corruptio
 >   <li>baz</li>
 > </ul>
 > ```
-> This renders as `foo` `bar` `baz` instead of `foobarbaz` because formatting whitespace between elements is preserved as content . To keep the semblance of indentation but remove unwanted whitespace, one approach exploits the very inconsistency we just described:
+> This renders as `foo` `bar` `baz` instead of `foobarbaz` because formatting whitespace between elements is preserved as content. To keep the semblance of indentation but remove unwanted whitespace, one approach exploits the very inconsistency we just described:
 > ```html
 > <ul
 >   ><li>foo</li
@@ -227,9 +232,9 @@ But beyond inconsistency and non-equivalence the biggest issue is data corruptio
 >   ><li>baz</li
 > ></ul>
 > ```
-> It is difficult to classify this, or any other possible approach, as actual solution to this problem.
+> It is difficult to classify this, or any other similar trick, as actual solution to this problem.
 
-In contrast, JSON clearly defines a boundary between content and formatting: whitespace added inside a string is fully preserved, whitespace added outside a string is fully discarded, there is no possibility of formatting whitespace corrupting the data:
+In contrast, JSON clearly defines a boundary between content and formatting: whitespace added inside a string is fully preserved and whitespace added outside a string is fully discarded. There is no possibility of formatting whitespace corrupting the data:
 
 ```json
 [
@@ -257,7 +262,7 @@ class person {
 }
 ```
 
-The only difference is functionality: the first annotates an actual instance with type information while the second merely describes the shape of this type with some default values. However, in both cases the `person` declaration is neither a key nor a value, but a third, distinct concept. This is important, because common "best" practices appear to lack any understanding of the concept of types and routinely confuse type declarations with value declarations.
+The only difference is functionality: the first annotates an actual instance with type information while the second merely describes the shape of this type with some default values. However, in both cases the `person` declaration is neither a key nor a value, but a third, distinct concept. This distinction is important, because common "best" practices appear to lack any understanding of the concept of types and routinely confuse type declarations with keys or values.
 
 For example, "best" practice dictates that we should avoid this:
 
@@ -289,9 +294,9 @@ in favor of this:
 </note>
 ```
 
-This is good advice only in the sense that any other alternative would be much worse. In reality, the second example not only conflates type declarations with identifiers, it also forces nominal data into an ordinal model, breaking our data model at a fundamental level. This 'advice' stems from a completely unrelated limitation, namely that attribute values cannot branch, which is a fundamental flaw in the very design of XML.
+This is good advice only in the sense that any other alternative would be much worse. In reality, the second example not only conflates type declarations with identifiers and lets formatting whitespace bleed into the data, it also forces nominal data into an ordinal model, breaking our data model at a fundamental level. This 'advice' stems from a completely unrelated limitation, namely that attribute values cannot branch, which also makes XML unsuitable for storing structured data.
 
-> Simply put, XML by design forces us to deliberately misuse type declarations and model types.
+> Simply put, XML by design not only forces us to deliberately misuse type declarations and model types, it also corrupts our data.
 
 Unfortunately, JSON does not support any form of explicit type declarations, so ironically we have to map tag names either to an identifier or to a value.
 
