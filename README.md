@@ -298,7 +298,7 @@ in favor of this:
 </note>
 ```
 
-This is good advice only in the sense that any other alternative would be much worse. In reality, the second example not only conflates type declarations with identifiers and lets formatting whitespace bleed into the data, it also forces nominal data into an ordinal model, breaking our data model at a fundamental level. This 'advice' stems from a completely unrelated limitation, namely that attribute values cannot branch, which also makes XML unsuitable for storing structured data.
+This is good advice only in the sense that any other alternative would be much worse. In reality, the second example not only conflates type declarations with keys and lets formatting whitespace bleed into the data, it also forces nominal data into an ordinal model, breaking our data model at a fundamental level. This 'advice' stems from a completely unrelated limitation, namely that attribute values cannot branch, which in itself would disqualify XML from being used as a data interchange format.
 
 > To put it simply, XML by design not only forces us to deliberately misuse type declarations and model types, it also corrupts our data.
 
