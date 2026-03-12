@@ -23,10 +23,10 @@ From a data standpoint we can say that XML supports only one default type `strin
 - an optional nominal part, called the *attribute list*; and
 - an optional ordinal part, called the *element content*.
 
-The opening tag contains the tag name and the attribute list while the element content is between the opening and closing tags. Nominal members can only be of type `string`, while ordinal members can be an arbitrary mix of type `string` and any custom types. If there are no ordinal members, the opening tag can be merged with the closing tag, forming a so-called self-closing tag or empty element.
+The opening tag contains the tag name and the attribute list while the element content is between the opening and closing tags. Nominal members can only be of type `string`, while ordinal members can be an arbitrary mix of type `string` and any custom types. If there are no ordinal members, the opening tag can be merged with the closing tag, forming a so-called self-closing tag.
 
 > [!CAUTION]
-> The official name is empty element, which is demonstrably incorrect terminology. 'Empty' elements can, in fact hold data as nominal members, they just don't hold any ordinal members. We will avoid this terminology as it is highly misleading, especially in glaring examples like this (and even more so in HTML):
+> The official name for a self-closing tag is empty element, which is demonstrably incorrect terminology. 'Empty' elements can, in fact hold data as nominal members, they just don't hold any ordinal members. We will avoid this terminology as it is highly misleading, especially in glaring examples like this (and even more so in HTML):
 > ```xml
 > <img src="image.png"/>
 > ```
@@ -105,7 +105,7 @@ For example, an XML graph with 3 vertices and a depth of 3:
 </_>
 ```
 
-- would equate to a JSON graph with 6 vertices and a depth of 6:
+would equate to a JSON graph with 6 vertices and a depth of 6:
 
 ```json
 {
@@ -121,7 +121,7 @@ For example, an XML graph with 3 vertices and a depth of 3:
 }
 ```
 
-- or at the minimum to a JSON graph with 6 vertices and a depth of 4:
+or at the minimum to a JSON graph with 6 vertices and a depth of 4:
 
 ```json
 [
@@ -235,13 +235,14 @@ But beyond inconsistency and non-equivalence the biggest issue is data corruptio
 >   ><li>baz</li
 > ></ul>
 > ```
-> It is difficult to classify this, or any other similar trick, as actual solution to this problem.
+> We leave it to the reader to decide whether this or any similar trick can be classified as actual solution to this problem.
 
 In contrast, JSON clearly defines a boundary between content and formatting: whitespace added inside a string is fully preserved and whitespace added outside a string is fully discarded. There is no possibility of formatting whitespace corrupting the data:
 
 ```json
 [
-  "foo"    ,    "bar"
+  "foo"    ,
+                "bar"
   ,    "baz"
     ]
 ```
@@ -267,7 +268,7 @@ class person {
 
 The only difference is functionality: the first annotates an actual instance with type information while the second merely describes the shape of this type with some default values. However, in both cases the `person` declaration is neither a key nor a value, but a third, distinct concept. This distinction is important, because common "best" practices appear to lack any understanding of the concept of types and routinely confuse type declarations with keys or values.
 
-For example, "best" practice dictates that we should avoid this:
+For example, 'best' practice dictates that we should avoid this:
 
 ```xml
 <note
@@ -299,9 +300,9 @@ in favor of this:
 
 This is good advice only in the sense that any other alternative would be much worse. In reality, the second example not only conflates type declarations with identifiers and lets formatting whitespace bleed into the data, it also forces nominal data into an ordinal model, breaking our data model at a fundamental level. This 'advice' stems from a completely unrelated limitation, namely that attribute values cannot branch, which also makes XML unsuitable for storing structured data.
 
-> Simply put, XML by design not only forces us to deliberately misuse type declarations and model types, it also corrupts our data.
+> To put it simply, XML by design not only forces us to deliberately misuse type declarations and model types, it also corrupts our data.
 
-Unfortunately, JSON does not support any form of explicit type declarations, so ironically we have to map tag names either to an identifier or to a value.
+Unfortunately, JSON does not support any form of explicit type declarations, so ironically we have to map tag names either to a key or to a value.
 
 - mapping string, custom hybrids to null, boolean, number, string, array, object
 - plist dict to object? Other types?
