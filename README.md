@@ -6,7 +6,7 @@ JSON cannot faithfully represent XML data. This is because XML and JSON support 
 
 ## Introduction
 
-Today, XML is still widely used as a data interchange format. Thus, it is reasonable to expect that it is compatible with, or at the very least comparable to JSON, a language specifically designed for this purpose. In this document we will assess XML from this particular perspective, as a language used to "store, transmit and reconstruct structured data".[^1]: https://en.wikipedia.org/wiki/XML
+Today, XML is still widely used as a data interchange format. Thus, it is reasonable to expect that it is compatible with, or at the very least comparable to JSON, a language specifically designed for this purpose. In this document we will assess XML from this particular perspective, as a language used to "store, transmit and reconstruct structured data".[^1]
 
 Also, throughout this document we will refer to two language agnostic abstract structures that form the basis of structured data: ordinal and nominal structures.
 
@@ -492,4 +492,5 @@ And if we want to keep their order, we cannot promote tag names to properties (w
 ## Converting Comments (merge with text nodes/whitespace?)
 ## Converting the Prolog (maybe not important)
 
+[^1]: https://en.wikipedia.org/wiki/XML
 [^2]: https://www.w3.org/TR/xml/#sec-origin-goals
