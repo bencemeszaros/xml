@@ -276,7 +276,7 @@ And here is what they actually ended up with instead:
 }
 ```
 
-To really drive this point home, let's plug the 'good' XML into JS (or any other programming language) and try to access the year for example. How should we do it?
+To really drive this point home, let's plug the 'best' practice XML into JS (or any other programming language) and try to access the year for example. How should we do it?
 
 ```js
 note.getElementsByTagName("year")[0].textContent; //like this?
@@ -368,11 +368,11 @@ Or:
 
 ```json
 {
-  "@text": "foo",
+  "text": "foo",
+  "@text": "baz",
   "a": {
     "@text": "bar"
-  },
-  "@text": "baz"
+  }
 }
 ```
 
@@ -391,6 +391,22 @@ Or:
 ```
 
 This is exactly where badgerfish, a popular XML-to-JSON convention, gave up too.[^3]
+
+If we want true equivalence we would need to add type declarations to JSON. This is an interesting idea because it also demonstrates how badly the 'best' practice XML actually performs:
+
+```pseudo-json
+note [
+  date [
+    day ["10"],
+    month ["01"],
+    year ["2008"]
+  ],
+  to ["Tove"],
+  from ["Jani"],
+  heading ["Reminder"],
+  body ["Don't forget me this weekend!"]
+]
+```
 
 ## Whitespace
 
