@@ -10,7 +10,7 @@ Today, XML is still widely used as a data interchange format. Thus, it is reason
 
 Also, throughout this document we will refer to two language agnostic abstract structures that form the basis of structured data: ordinal and nominal structures.
 
-**Ordinal structures** store data pieces (members) one after another, using a pre-determined order. Meaning is derived from this order thus the schema is not included with the data. They are also called indexed, ordered, positional or sequential structures, or lists, sets or sequences.
+**Ordinal structures** store data pieces (members) one after another, using a pre-determined order. Meaning is derived from this order thus the schema is not included with the data. They are also called indexed, ordered, positional or sequential structures, or arrays, lists, sets or sequences.
 
 **Nominal structures** store data pieces (members) as associations, usually as key-value pairs, without regard to their order. Meaning is derived from the specific associations thus the schema is included with the data. They are also called associative, keyed, labeled, mapped or named structures, or dictionaries, maps or objects.
 
@@ -23,7 +23,7 @@ From a data standpoint we can say that XML supports only one default type `strin
 - an optional nominal part, called the *attribute list*; and
 - an optional ordinal part, called the *element content*.
 
-The opening tag contains the tag name and the attribute list while the element content is between the opening and closing tags. Nominal members can only be of type `string`, while ordinal members can be an arbitrary mix of type `string` and any custom types. If there are no ordinal members, the opening tag can be merged with the closing tag, forming a so-called self-closing tag.
+The opening tag contains the tag name and the attribute list while the element content is between the opening and closing tags. Nominal members can only be of type `string`, while ordinal members can be an arbitrary mix of type `string` and any custom type. If there are no ordinal members, the opening tag can be merged with the closing tag, forming a so-called self-closing tag.
 
 > [!CAUTION]
 > The official name for a self-closing tag is empty element, which is demonstrably incorrect terminology. 'Empty' elements can, in fact hold data as nominal members, they just don't hold any ordinal members. We will avoid this terminology as it is highly misleading, especially in glaring examples like this (and even more so in HTML):
@@ -65,7 +65,7 @@ But it is entirely possible that an element contains only ordinal members, in wh
 ["foo"]
 ```
 
-Then, of course there is the third subset of elements that have both ordinal and nominal members. Here, the next naive assumption is that for these elements a combination of an array and an object would suffice, but this would produce a different graph since an element holds ordinal and nominal members within a single construct.
+Then, of course there is the third subset of elements that have both ordinal and nominal members. Here, the next naive assumption is that a combination of an array and an object would suffice, but this would produce a different graph since an element holds ordinal and nominal members within a single construct.
 
 Suppose we have a complex XML element:
 
@@ -93,7 +93,7 @@ If we try to approximate this element with a combination of an array and an obje
 ]
 ```
 
-Regardless of our choice, both options produce a different graph: instead of a single graph vertex we always need two. In practical terms, our JSON graph will be twice as big and twice as deep as our original XML graph.
+Regardless of our choice, both options produce a different graph: instead of a single graph vertex we always need two. In practical terms, the JSON graph will be twice as big and twice as deep as the original XML graph.
 
 For example, an XML graph with 3 vertices and a depth of 3:
 
@@ -135,7 +135,7 @@ or at the minimum to a JSON graph with 6 vertices and a depth of 4:
 ]
 ```
 
-If we want true equivalence we would need to add a new hybrid structure to JSON that merges, not combines, an ordinal and a nominal structure. This would also work for all three types of XML elements:
+If we want true equivalence we would need to add a new hybrid structure to JSON that merges, not combines, an ordinal and a nominal structure. This would also work for all three subsets of XML elements:
 
 ```pseudo-json
 (
@@ -298,11 +298,193 @@ in favor of this:
 </note>
 ```
 
-This is good advice only in the sense that any other alternative would be much worse. In reality, the second example not only conflates type declarations with keys and lets formatting whitespace bleed into the data, it also forces nominal data into an ordinal model, breaking our data model at a fundamental level. This 'advice' stems from a completely unrelated limitation, namely that attribute values cannot branch, which in itself would disqualify XML from being used as a data interchange format.
+This is bad advice because the second example not only conflates type declarations with key declarations and lets formatting whitespace bleed into the data, it also pushes nominal data into an ordinal model, breaking our data model at a fundamental level.
 
-> To put it simply, XML by design not only forces us to deliberately misuse type declarations and model types, it also corrupts our data.
+To demonstrate this, here is what the original author wanted to achieve:
 
-Unfortunately, JSON does not support any form of explicit type declarations, so ironically we have to map tag names either to a key or to a value.
+```json
+{
+  "date": {
+    "day": 10,
+    "month": 1,
+    "year": 2008
+  },
+  "to": "Tove",
+  "from": "Jani",
+  "heading": "Reminder",
+  "body": "Don't forget me this weekend!"
+}
+```
+
+And here is what they actually ended up with instead:
+
+```json
+{
+  "@type": "note",
+  "@children": [
+    "\n  ",
+    {
+      "@type": "date",
+      "@children": [
+        "\n    ",
+        {
+          "@type": "day",
+          "@children": ["10"]
+        },
+        "\n    ",
+        {
+          "@type": "month",
+          "@children": ["01"]
+        },
+        "\n    ",
+        {
+          "@type": "year",
+          "@children": ["2008"]
+        },
+        "\n  "
+      ]
+    },
+    "\n  ",
+    {
+      "@type": "to",
+      "@children": ["Tove"]
+    },
+    "\n  ",
+    {
+      "@type": "from",
+      "@children": ["Jani"]
+    },
+    "\n  ",
+    {
+      "@type": "heading",
+      "@children": ["Reminder"]
+    },
+    "\n  ",
+    {
+      "@type": "body",
+      "@children": ["Don't forget me this weekend!"]
+    },
+    "\n"
+  ]
+}
+```
+
+To really drive this point home, let's plug the 'good' XML into JS (or any other programming language) and try to access the year for example. How should we do it?
+
+```js
+note.getElementsByTagName("year")[0].textContent; //like this?
+note.getElementsByTagName("date")[0].getElementsByTagName("year").textContent; //or this?
+note.documentElement.children[0].children[2].textContent; //or maybe this?
+```
+No matter what we try, it is always a guessing game:
+- Is it the first `<year>` element in the entire document we need?
+- Is it the first `<date>` element, then its first `<year>` element we need?
+- Is the `<date>` element the first child of the root element, then its third child the `<year>` element we need?
+
+In contrast, this is what the author wanted to achieve:
+
+```js
+note.date.year;
+```
+
+This 'advice' stems from a completely unrelated limitation, namely that attribute values cannot branch. It would be much better advice not to use XML as a data interchange format because it cannot nest nominal data and all workarounds are nothing short of disastrous.
+
+> [!IMPORTANT]
+> XML by design not only forces us to deliberately misuse type declarations and model types, it also corrupts our data.
+
+### Tag names as object keys
+Unfortunately, JSON does not support any form of explicit type declarations, so ironically we have to map tag names either to a key or to a value. Again, the naive assumption is that now we can revert the ordinal structure back to a nominal structure as it was originally intended, but it is impossible beyond one exceptional situation and even that has major downsides.
+
+Suppose we promote tag names to keys on the parent object. This is possible with extremely simple elements:
+
+```xml
+<_><a/></_>
+```
+```json
+{
+  "a": {}
+}
+```
+
+However, the root element has no parent, the surrogate keys can clash with existing attributes, it is entirely possible that an element has multiple children with the same tag name and that it has text nodes along with its element children.
+
+1. Surrogate root element alters our graph:
+
+```xml
+<a/>
+```
+```json
+{
+  "a": {}
+}
+```
+
+2. Surrogate tag properties clash with attribute properties and the workaround is ambiguous:
+
+```xml
+<_ a="foo"><a/></_>
+```
+```json
+{
+  "a": "foo",
+  "@a": {}
+}
+```
+
+Or:
+
+```json
+{
+  "@a": "foo",
+  "a": {}
+}
+```
+
+3. Multiple children with the same tag name needs a surrogate array that alters our graph once again:
+
+```xml
+<_><a/><a/></_>
+```
+```json
+{
+  "a": [
+    {},
+    {}
+  ]
+}
+```
+
+4. Text nodes can mix with child elements and no workaround is even possible for this:
+
+```xml
+<_ text="foo"><a>bar</a>baz</_>
+```
+
+We can attempt to add a surrogate property for text nodes as well, but even if we avoid clashing with an existing attributes, once we separate child elements and text nodes we cannot reconstruct their original order (the conversion is lossy):
+
+```json
+{
+  "@text": "foo",
+  "a": {
+    "@text": "bar"
+  },
+  "@text": "baz"
+}
+```
+
+And if we want to keep their order, we cannot promote tag names to properties (we are back to square one):
+
+```json
+{
+  "@children": [
+    {
+      "@type": "a",
+      "@children": ["foo"]
+    },
+    "bar"
+  ]
+}
+```
 
 - mapping string, custom hybrids to null, boolean, number, string, array, object
 - plist dict to object? Other types?
