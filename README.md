@@ -31,7 +31,7 @@ The opening tag contains the tag name and the attribute list while the element c
 > <img src="image.png"/>
 > ```
 
-In addition, XML supports comments that conceptually act as self-closing tags with a single ordinal `string` member.
+In addition, XML supports comments that conceptually act as self-closing tags with a single ordinal `string` member. Here is a brief overview of the main parts of XML:
 
 ```xml
 <tag-name attribute-name="attribute-value">element content</tag-name>
@@ -39,13 +39,13 @@ In addition, XML supports comments that conceptually act as self-closing tags wi
 <!-- comment -->
 ```
 
-For simplicity, we will use the abstract element type throughout this document (element without a tag name) until we discuss tag names:
+> [!NOTE]
+> For simplicity, in many examples we will use the abstract element type (an element without a tag name):
+> ```xml
+> <_>
+> ```
 
-```xml
-<_>
-```
-
-## Converting Elements
+## Elements
 
 The naive assumption is that an element is equivalent to an object. This is only true for a specific subset of elements, namely if they contain only nominal members:
 
@@ -146,7 +146,6 @@ If we want true equivalence we would need to add a new hybrid structure to JSON 
 
 > [!NOTE]
 > This is exactly how arrays work in JS, we just can't define them via a single literal. In JS arrays are regular objects, therefore we can set arbitrary properties on them. In fact, array indices can work the same as any other object property:
->
 > ```js
 > const arr = ["foo"]; //define ordinal members
 > arr.bar = "baz"; //define nominal members
@@ -156,100 +155,7 @@ If we want true equivalence we would need to add a new hybrid structure to JSON 
 > arr["bar"]; //"baz" (stored directly on the array)
 > ```
 
-## Converting Text Nodes (draft only)
-
-This leads to another unsolvable dilemma:
-- If we treat pure text and child elements the same inside the element content, this example would equate to a JSON like this:
-- 
-```json
-[
-  "\n  ",
-  ["Dogs"],
-  "\n  chase\n  ",
-  ["cats"],
-  "\n"
-]
-```
-
-- And if we somehow separate them, we won’t be able to reconstruct the original order:
-- 
-```json
-{
-  "@children": [
-    {
-```
-
-Even in trivial cases it is very difficult, or even impossible, to separate whitespace we want to keep as data from whitespace we want to discard as formatting.
-
-## Converting Whitespace (combine this with text nodes)
-
-The treatment of whitespace in XML is inconsistent across contexts. In the attribute list around names and values it is always treated as formatting and thus discarded, but in the element content it is always treated as actual content and fully preserved by default. This has far reaching consequences.
-
-For example, the following two examples are equivalent:
-
-```xml
-<_ foo="bar"/>
-```
-```xml
-<_
-  foo
-    =
-      "bar"
-        />
-```
-
-But the following two are not:
-
-```xml
-<_>foo</_>
-```
-```xml
-<_>
-  foo
-</_>
-```
-
-This becomes apparent if we faithfully convert the last example to an array:
-
-```json
-["\n  foo\n"]
-```
-
-But beyond inconsistency and non-equivalence the biggest issue is data corruption. Since XML provides no boundary between content and formatting, whitespace added simply to make the code readable for humans bleeds into and alters the actual data. Once content and formatting are mixed together it is practically impossible to separate the two.
-
-> [!CAUTION]
-> Whitespace bleeding is a significant issue in HTML as well. One common example is when inline-block elements are indented, for example when describing a horizontal menu:
-> ```html
-> <style>li {display: inline-block}</style>
-> <ul>
->   <li>foo</li>
->   <li>bar</li>
->   <li>baz</li>
-> </ul>
-> ```
-> This renders as `foo` `bar` `baz` instead of `foobarbaz` because formatting whitespace between elements is preserved as content. To keep the semblance of indentation but remove unwanted whitespace, one approach exploits the very inconsistency we just described:
-> ```html
-> <ul
->   ><li>foo</li
->   ><li>bar</li
->   ><li>baz</li
-> ></ul>
-> ```
-> We leave it to the reader to decide whether this or any similar trick can be classified as actual solution to this problem.
-
-In contrast, JSON clearly defines a boundary between content and formatting: whitespace added inside a string is fully preserved and whitespace added outside a string is fully discarded. There is no possibility of formatting whitespace corrupting the data:
-
-```json
-[
-  "foo"    ,
-                "bar"
-  ,    "baz"
-    ]
-```
-
-At best, whitespace bleeding makes XML unsuitable for storing structured data, at worst, it is a major design flaw of the language because it prevents XML from fulfilling one of its stated objectives: it is either "human-legible and reasonably clear" or "easy to process", but not both.[^2]
-
-## Converting Tag Names (draft only)
+## Tag Names
 
 XML tag names are essentially type declarations. We can demonstrate this by comparing an XML element to a JS class. A simple XML element like this:
 
@@ -257,7 +163,7 @@ XML tag names are essentially type declarations. We can demonstrate this by comp
 <person name="John Doe" age="30" />
 ```
 
-is structurally equivalent to this:
+Is structurally equivalent to this:
 
 ```js
 class person {
@@ -266,9 +172,9 @@ class person {
 }
 ```
 
-The only difference is functionality: the first annotates an actual instance with type information while the second merely describes the shape of this type with some default values. However, in both cases the `person` declaration is neither a key nor a value, but a third, distinct concept. This distinction is important, because common "best" practices appear to lack any understanding of the concept of types and routinely confuse type declarations with keys or values.
+The only difference is functionality: the first annotates an actual instance with type information while the second merely describes the shape of this type with some default values. However, in both cases the `person` declaration is neither a key nor a value, but a third, distinct concept. This distinction is important, because common 'best' practices appear to lack any understanding of the concept of types and routinely confuse type declarations with keys or values.
 
-For example, 'best' practice dictates that we should avoid this:
+For example, 'best' practice dictates[^2] that we should avoid this:
 
 ```xml
 <note
@@ -284,6 +190,7 @@ For example, 'best' practice dictates that we should avoid this:
 
 in favor of this:
 
+
 ```xml
 <note>
   <date>
@@ -298,7 +205,7 @@ in favor of this:
 </note>
 ```
 
-This is bad advice because the second example not only conflates type declarations with key declarations and lets formatting whitespace bleed into the data, it also pushes nominal data into an ordinal model, breaking our data model at a fundamental level.
+This is bad advice because the second example not only conflates types with keys, it also pushes nominal data into an ordinal model, breaking our data model at a fundamental level.
 
 To demonstrate this, here is what the original author wanted to achieve:
 
@@ -374,7 +281,7 @@ To really drive this point home, let's plug the 'good' XML into JS (or any other
 ```js
 note.getElementsByTagName("year")[0].textContent; //like this?
 note.getElementsByTagName("date")[0].getElementsByTagName("year").textContent; //or this?
-note.documentElement.children[0].children[2].textContent; //or maybe this?
+note.children[0].children[2].textContent; //or maybe this?
 ```
 No matter what we try, it is always a guessing game:
 - Is it the first `<year>` element in the entire document we need?
@@ -389,11 +296,8 @@ note.date.year;
 
 This 'advice' stems from a completely unrelated limitation, namely that attribute values cannot branch. It would be much better advice not to use XML as a data interchange format because it cannot nest nominal data and all workarounds are nothing short of disastrous.
 
-> [!IMPORTANT]
-> XML by design not only forces us to deliberately misuse type declarations and model types, it also corrupts our data.
-
-### Tag names as object keys
-Unfortunately, JSON does not support any form of explicit type declarations, so ironically we have to map tag names either to a key or to a value. Again, the naive assumption is that now we can revert the ordinal structure back to a nominal structure as it was originally intended, but it is impossible beyond one exceptional situation and even that has major downsides.
+## Keys or Values
+Unfortunately, JSON does not support any form of explicit type declarations, so ironically we have to map tag names either to a key or to a value. Again, the naive assumption is that now we can revert the ordinal structure back to a nominal structure as it was originally intended, but it is only possible in a rare and exceptional situation and even that has major downsides.
 
 Suppose we promote tag names to keys on the parent object. This is possible with extremely simple elements:
 
@@ -454,13 +358,13 @@ Or:
 }
 ```
 
-4. Text nodes can mix with child elements and no workaround is even possible for this:
+4. Text nodes mixed with child elements don't even have a possible workaround:
 
 ```xml
 <_ text="foo"><a>bar</a>baz</_>
 ```
 
-We can attempt to add a surrogate property for text nodes as well, but even if we avoid clashing with an existing attributes, once we separate child elements and text nodes we cannot reconstruct their original order (the conversion is lossy):
+- The best option is to add a surrogate property for text nodes as well, but even if we avoid clashing with an existing attribute, once we separate child elements and text nodes we cannot reconstruct their original order (the conversion is lossy):
 
 ```json
 {
@@ -472,7 +376,7 @@ We can attempt to add a surrogate property for text nodes as well, but even if w
 }
 ```
 
-And if we want to keep their order, we cannot promote tag names to properties (we are back to square one):
+- And if we keep their order, we cannot promote tag names to properties (we are back to square one):
 
 ```json
 {
@@ -486,11 +390,117 @@ And if we want to keep their order, we cannot promote tag names to properties (w
 }
 ```
 
+This is exactly where badgerfish, a popular XML-to-JSON convention, gave up too.[^3]
+
+## Whitespace
+
+But an even bigger issue is the treatment of whitespace in XML, which is inconsistent across contexts. In the attribute list around names and values it is always treated as formatting and thus discarded, but in the element content it is always treated as actual content and fully preserved by default. This has far reaching consequences.
+
+For example, the following two examples are equivalent:
+
+```xml
+<_ foo="bar"/>
+```
+```xml
+<_
+  foo
+    =
+      "bar"
+        />
+```
+
+But the following two are not:
+
+```xml
+<_>foo</_>
+```
+```xml
+<_>
+  foo
+</_>
+```
+
+This becomes apparent if we faithfully convert the last example to an array:
+
+```json
+["\n  foo\n"]
+```
+
+But beyond inconsistency and non-equivalence the biggest issue is data corruption. Since XML provides no boundary between content and formatting, whitespace added simply to make the code readable for humans bleeds into and alters the actual data. Once content and formatting are mixed together it is practically impossible to separate the two.
+
+> [!CAUTION]
+> Whitespace bleeding is a significant issue in HTML as well. One common example is when inline-block elements are indented, for example when describing a horizontal menu:
+> ```html
+> <style>li {display: inline-block}</style>
+> <ul>
+>   <li>foo</li>
+>   <li>bar</li>
+>   <li>baz</li>
+> </ul>
+> ```
+> This renders as `foo` `bar` `baz` instead of `foobarbaz` because formatting whitespace between elements is preserved as content. To keep the semblance of indentation but remove unwanted whitespace, one approach exploits the very inconsistency we just described:
+> ```html
+> <ul
+>   ><li>foo</li
+>   ><li>bar</li
+>   ><li>baz</li
+> ></ul>
+> ```
+> We leave it to the reader to decide whether this or any similar trick can be classified as actual solution to this problem.
+
+In contrast, JSON clearly defines a boundary between content and formatting: whitespace added inside a string is fully preserved and whitespace added outside a string is fully discarded. There is no possibility of formatting whitespace corrupting the data:
+
+```json
+[
+  "foo"    ,
+                "bar"
+  ,    "baz"
+    ]
+```
+
+At best, whitespace bleeding makes XML unsuitable for storing structured data, at worst, it is a major design flaw of the language because it prevents XML from fulfilling one of its stated objectives: it is either "human-legible and reasonably clear" or "easy to process", but not both.[^4]
+
+## CONCLUSION
+
+> [!IMPORTANT]
+> XML by design not only forces us to deliberately misuse type declarations and model types, it also corrupts our data.
+
+[^1]: https://en.wikipedia.org/wiki/XML
+[^2]: https://www.w3schools.com/xml/xml_attributes.asp
+[^3]: http://www.sklar.com/badgerfish/
+[^4]: https://www.w3.org/TR/xml/#sec-origin-goals
+
+
+
+## Converting Text Nodes (drop this?)
+
+This leads to another unsolvable dilemma:
+- If we treat pure text and child elements the same inside the element content, this example would equate to a JSON like this:
+- 
+```json
+[
+  "\n  ",
+  ["Dogs"],
+  "\n  chase\n  ",
+  ["cats"],
+  "\n"
+]
+```
+
+- And if we somehow separate them, we won’t be able to reconstruct the original order:
+- 
+```json
+{
+  "@children": [
+    {
+```
+
+Even in trivial cases it is very difficult, or even impossible, to separate whitespace we want to keep as data from whitespace we want to discard as formatting.
+
+
+
 - mapping string, custom hybrids to null, boolean, number, string, array, object
 - plist dict to object? Other types?
 
 ## Converting Comments (merge with text nodes/whitespace?)
 ## Converting the Prolog (maybe not important)
-
-[^1]: https://en.wikipedia.org/wiki/XML
-[^2]: https://www.w3.org/TR/xml/#sec-origin-goals
