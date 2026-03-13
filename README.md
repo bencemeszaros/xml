@@ -394,7 +394,7 @@ This is exactly where badgerfish, a popular XML-to-JSON convention, gave up too.
 
 If we want true equivalence we would need to add type declarations to JSON. This is an interesting idea because it also demonstrates how badly the 'best' practice XML actually performs:
 
-```json
+```pseudo-json
 note [
   date [
     day ["10"],
