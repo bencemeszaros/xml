@@ -41,7 +41,7 @@ In addition, XML supports comments that conceptually act as self-closing tags wi
 
 ## Element Variations
 
-There are exactly four variations that an XML element can have: nominal part only, ordinal part only, both nominal and ordinal parts and neither nominal nor ordinal part.
+There are exactly four variations an XML element can have: nominal part only, ordinal part only, both nominal and ordinal parts and neither nominal nor ordinal part.
 
 **1. Nominal part only:** The element has attributes but no element content. This is equivalent to an object:
 
