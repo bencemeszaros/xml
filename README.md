@@ -43,6 +43,8 @@ In addition, XML supports comments that conceptually act as self-closing tags wi
 
 There are exactly four variations an XML element can have: nominal part only, ordinal part only, both nominal and ordinal parts and neither nominal nor ordinal part.
 
+<br><br>
+
 **1. Nominal part only:** The element has attributes but no element content. This is equivalent to an object:
 
 ```xml
@@ -64,6 +66,8 @@ There are exactly four variations an XML element can have: nominal part only, or
 > <img src="image.png"/>
 > ```
 
+<br><br>
+
 **2. Ordinal part only:** The element has element content but no attributes. This is equivalent to an array:
 
 ```xml
@@ -72,6 +76,8 @@ There are exactly four variations an XML element can have: nominal part only, or
 ```json
 ["foo"]
 ```
+
+<br><br>
 
 **3. Both nominal and ordinal parts:** The element has attributes and also element content. There is no equivalent in JSON, we can only approximate this variation with a combination of an array and an object, but it is ambiguous:
 
@@ -160,6 +166,8 @@ True equivalence would be a new hybrid structure in JSON that merges, not combin
 > arr["0"]; //"foo" (works as any other property)
 > arr["bar"]; //"baz" (stored directly on the array)
 > ```
+
+<br><br>
 
 **4. Neither nominal nor ordinal part:** The element has no attributes or any element content. The equivalence here is also ambiguous: this can be either an empty array, an empty object or even other JSON data types. This is the true empty element. It is perfectly valid in XML and it does have a use case, for example the boolean type in plist files:
 
