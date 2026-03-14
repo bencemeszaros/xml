@@ -25,12 +25,6 @@ From a data standpoint we can say that XML supports only one default type `strin
 
 The opening tag contains the tag name and the attribute list while the element content is between the opening and closing tags. Nominal members can only be of type `string`, while ordinal members can be an arbitrary mix of type `string` and any custom type. If there are no ordinal members, the opening tag can be merged with the closing tag, forming a so-called self-closing tag.
 
-> [!CAUTION]
-> The official name for a self-closing tag is empty element, which is demonstrably incorrect terminology. 'Empty' elements can, in fact hold data as nominal members, they just don't hold any ordinal members. We will avoid this terminology as it is highly misleading, especially in glaring examples like this (and even more so in HTML):
-> ```xml
-> <img src="image.png"/>
-> ```
-
 In addition, XML supports comments that conceptually act as self-closing tags with a single ordinal `string` member. Here is a brief overview of the main parts of XML:
 
 ```xml
@@ -44,6 +38,143 @@ In addition, XML supports comments that conceptually act as self-closing tags wi
 > ```xml
 > <_>
 > ```
+
+## Element Variations
+
+There are exactly four variations an element can have: nominal part only, ordinal part only, both nominal and ordinal parts and neither nominal nor ordinal part.
+
+**1. Nominal part only:** The element has attributes but no element content. This is equivalent to an object:
+
+```xml
+<_ foo="bar"></_>
+```
+```json
+{"foo": "bar"}
+```
+
+> [!NOTE]
+> If there is no ordinal part the opening and closing tags can be merged. This is called a self-closing tag. We will use this syntax to simplify our examples:
+> ```xml
+> <_ foo="bar"/>
+> ```
+
+> [!CAUTION]
+> The official name for a self-closing tag is empty element, which is demonstrably incorrect terminology. 'Empty' elements can, in fact hold data as nominal members, they just don't hold any ordinal members. We will avoid this terminology as it is highly misleading, especially in glaring examples like this (and even more so in HTML):
+> ```xml
+> <img src="image.png"/>
+> ```
+
+**2. Ordinal part only:** The element has element content but no attributes. This is equivalent to an array:
+
+```xml
+<_>foo</_>
+```
+```json
+["foo"]
+```
+
+**3. Both nominal and ordinal parts:** The element has attributes and also element content. There is no equivalent in JSON, we can only approximate this variation with a combination of an array and an object:
+
+```xml
+<_ foo="bar">baz</_>
+```
+
+1. An array nested into an object. In this case we need a surrogate property and a naming convention to avoid collision with an existing attribute. A common approach is to use a name that would be invalid as an attribute:
+
+    ```json
+    {
+      "foo": "bar",
+      "@children": ["baz"]
+    }
+    ```
+
+2. An object nested into an array. In this case we need a convention to avoid ambiguity and define how we manipulate the indices within the element content:
+
+    ```json
+    [
+      {"foo": "bar"},
+      "baz"
+    ]
+    ```
+
+In both cases the resulting graph is different than the original because the element holds ordinal and nominal members within a single construct.
+
+In technical terms, for each graph vertex we always need two. In practical terms the JSON tree is twice as big and twice as deep as its XML counterpart:
+
+For example, an XML graph with 3 vertices and a depth of 3:
+
+```xml
+<_>
+  <_>
+    <_></_>
+  </_>
+</_>
+```
+
+would equate to a JSON graph with 6 vertices and a depth of 6:
+
+```json
+{
+  "@children": [
+    {
+      "@children": [
+        {
+          "@children": []
+        }
+      ]
+    }
+  ]
+}
+```
+
+or at the minimum to a JSON graph with 6 vertices and a depth of 4:
+
+```json
+[
+  {},
+  [
+    {},
+    [
+      {}
+    ]
+  ]
+]
+```
+
+True equivalence would be a new hybrid structure in JSON that merges, not combines, an ordinal and a nominal structure:
+
+```pseudo-json
+(
+    "foo": "bar",
+    "baz"
+)
+```
+
+> [!NOTE]
+> This is exactly how arrays work in JS, we just can't define them via a single literal. In JS arrays are regular objects, therefore we can set arbitrary properties on them. In fact, array indices can work the same as any other object property:
+> ```js
+> const arr = ["foo"]; //define ordinal members
+> arr.bar = "baz"; //define nominal members
+>
+> arr[0]; //"foo"
+> arr["0"]; //"foo" (works as any other property)
+> arr["bar"]; //"baz" (stored directly on the array)
+> ```
+
+**4. Neither nominal nor ordinal part:** The element has no attributes or any element content. The equivalence here is also ambiguous: this can be either an empty array, an empty object or even other JSON data types. This is the true empty element. It is perfectly valid in XML and it does have a use case, for example the boolean type in plist files:
+
+```xml
+<true/>
+```
+```json
+true
+```
+
+
+
+
+
+
 
 ## Elements
 
