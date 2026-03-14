@@ -4,11 +4,6 @@
 
 JSON cannot faithfully represent XML data. This is because XML and JSON support vastly different types and declarations, but ultimately because unlike JSON, SGML and all its derivative languages including XML, cannot faithfully represent structured data themselves. In this document, we demonstrate the structural differences between XML and JSON and highlight the fundamental limitations in XML that make it a poor choice for representing structured data, using trivial examples.
 
-**1. Ordered list item** (needs two empty lines above to separate from previous list)
-   1. Sub item renders as a., WTF?
-      1. Sub item renders as i., WTF?
-         1. Sub item renders as 1. again
-
 ## Introduction
 
 Today, XML is still widely used as a data interchange format. Thus, it is reasonable to expect that it is compatible with, or at the very least comparable to JSON, a language specifically designed for this purpose. In this document we will assess XML from this particular perspective, as a language used to "store, transmit and reconstruct structured data".[^1]
@@ -78,7 +73,7 @@ There are exactly four variations an element can have: nominal part only, ordina
 ["foo"]
 ```
 
-**3. Both nominal and ordinal parts:** The element has attributes and also element content. There is no equivalent in JSON, we can only approximate this variation with a combination of an array and an object:
+**3. Both nominal and ordinal parts:** The element has attributes and also element content. There is no equivalent in JSON, we can only approximate this variation with a combination of an array and an object, but it is ambiguous:
 
 ```xml
 <_ foo="bar">baz</_>
