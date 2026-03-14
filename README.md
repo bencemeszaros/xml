@@ -41,11 +41,22 @@ In addition, XML supports comments that conceptually act as self-closing tags wi
 
 ## Element Variations
 
-There are exactly four variations an XML element can have: nominal part only, ordinal part only, both nominal and ordinal parts and neither nominal nor ordinal part.
+There are exactly four variations an XML element can have: ordinal part only, nominal part only, both ordinal and nominal parts and neither ordinal nor nominal part.
 
-<br><br>
+<br>
 
-**1. Nominal part only:** The element has attributes but no element content. This is equivalent to an object:
+**1. Ordinal part only:** The element has element content but no attributes. This is equivalent to an array:
+
+```xml
+<_>foo</_>
+```
+```json
+["foo"]
+```
+
+<br>
+
+**2. Nominal part only:** The element has attributes but no element content. This is equivalent to an object:
 
 ```xml
 <_ foo="bar"></_>
@@ -66,20 +77,9 @@ There are exactly four variations an XML element can have: nominal part only, or
 > <img src="image.png"/>
 > ```
 
-<br><br>
+<br>
 
-**2. Ordinal part only:** The element has element content but no attributes. This is equivalent to an array:
-
-```xml
-<_>foo</_>
-```
-```json
-["foo"]
-```
-
-<br><br>
-
-**3. Both nominal and ordinal parts:** The element has attributes and also element content. There is no equivalent in JSON, we can only approximate this variation with a combination of an array and an object, but it is ambiguous:
+**3. Both ordinal and nominal parts:** The element has element content and attributes. There is no equivalent in JSON, we can only approximate this variation with a combination of an array and an object, but it is ambiguous:
 
 ```xml
 <_ foo="bar">baz</_>
@@ -167,9 +167,9 @@ True equivalence would be a new hybrid structure in JSON that merges, not combin
 > arr["bar"]; //"baz" (stored directly on the array)
 > ```
 
-<br><br>
+<br>
 
-**4. Neither nominal nor ordinal part:** The element has no attributes or any element content. The equivalence here is also ambiguous: this can be either an empty array, an empty object or even other JSON data types. This is the true empty element. It is perfectly valid in XML and it does have a use case, for example the boolean type in plist files:
+**4. Neither ordinal nor nominal part:** The element doesn't have element content and attributes. The equivalence here is also ambiguous: this can be either an empty array, an empty object or even other JSON data types. This is the true empty element. It is perfectly valid in XML and it does have a use case, for example the boolean type in <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/DevPedia-CocoaCore/PropertyList.html#//apple_ref/doc/uid/TP40008195-CH44-SW2" target="_blank">plist files</a>:
 
 ```xml
 <true/>
@@ -178,7 +178,7 @@ True equivalence would be a new hybrid structure in JSON that merges, not combin
 true
 ```
 
-
+<br>
 
 
 
