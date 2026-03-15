@@ -68,7 +68,7 @@ There are exactly four variations an XML element can have: ordinal part only, no
 ```
 
 > [!NOTE]
-> If there is no ordinal part the opening and closing tags can be merged. This is called a self-closing tag. We will use this syntax to simplify our examples:
+> If there is no ordinal part we can use a self-closing tag. We will use this syntax to simplify our examples:
 > ```xml
 > <_ foo="bar"/>
 > ```
