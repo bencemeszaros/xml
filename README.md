@@ -6,6 +6,8 @@
 
 JSON cannot faithfully represent XML data. This is because XML and JSON support vastly different types and declarations, but ultimately because unlike JSON, SGML and all its derivative languages including XML, cannot faithfully represent structured data themselves. In this document, we demonstrate the structural differences between XML and JSON and highlight the fundamental limitations in XML that make it a poor choice for representing structured data, using trivial examples.
 
+<br>
+
 ## Introduction
 
 Today, XML is still widely used as a data interchange format. Thus, it is reasonable to expect that it is compatible with, or at the very least comparable to JSON, a language specifically designed for this purpose. In this document we will assess XML from this particular perspective, as a language used to <a href="https://en.wikipedia.org/wiki/XML">"store, transmit and reconstruct structured data"</a>.
@@ -17,6 +19,8 @@ Also, throughout this document we will refer to two language agnostic abstract s
 **Nominal structures** store data pieces (members) as associations, usually as key-value pairs, without regard to their order. Meaning is derived from the specific associations thus the schema is included with the data. They are also called associative, keyed, labeled, mapped or named structures, or dictionaries, maps or objects.
 
 Finally, this document is a practical guide, not a theoretical or academic analysis. It also presumes that the reader has a basic working knowledge of both XML and JSON.
+
+<br>
 
 ## Anatomy of XML
 
@@ -41,7 +45,9 @@ In addition, XML supports comments that conceptually act as self-closing tags wi
 > <_>
 > ```
 
-## Element Variations
+<br>
+
+### Element Variations
 
 There are exactly four variations an XML element can have: ordinal part only, nominal part only, both ordinal and nominal parts and neither ordinal nor nominal part.
 
