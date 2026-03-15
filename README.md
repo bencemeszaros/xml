@@ -29,20 +29,16 @@ From a data standpoint we can say that XML supports only one default type `strin
 - an optional nominal part, called the *attribute list*; and
 - an optional ordinal part, called the *element content*.
 
-Nominal members can only be of type `string`, while ordinal members can be an arbitrary mix of type `string` and any custom type.
-
-In addition, XML supports comments that conceptually act as self-closing tags with a single ordinal `string` member. Here is a brief overview of the main parts of XML:
+Nominal members can only be of type `string`, while ordinal members can be an arbitrary mix of type `string` and any custom type:
 
 ```xml
 <tag-name attribute-name="attribute-value">element content</tag-name>
-<self-closing-tag/>
-<!-- comment -->
 ```
 
 > [!NOTE]
 > For simplicity, in many examples we will use the abstract element type (an element without a tag name):
 > ```xml
-> <_>
+> <_></_>
 > ```
 
 ### Element Variations
