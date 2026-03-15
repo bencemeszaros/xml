@@ -45,8 +45,6 @@ In addition, XML supports comments that conceptually act as self-closing tags wi
 > <_>
 > ```
 
-<br>
-
 ### Element Variations
 
 There are exactly four variations an XML element can have: ordinal part only, nominal part only, both ordinal and nominal parts and neither ordinal nor nominal part.
