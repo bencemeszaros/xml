@@ -476,7 +476,7 @@ To put it simply, at best, whitespace bleeding makes XML unsuitable for storing 
 
 ## 'Best' Practice
 
-A common <a href="https://www.w3schools.com/xml/xml_attributes.asp">'best' practice example</a> demonstrates all the previous points simultaneousy. This example dictates, that we should avoid this:
+A common <a href="https://www.w3schools.com/xml/xml_attributes.asp">'best' practice example</a> demonstrates all previous points simultaneousy. This example dictates that we should avoid this:
 
 ```xml
 <note
