@@ -2,7 +2,7 @@
 
 ## ABSTRACT
 
-XML is a bad choice as a data interchange format because it cannot faithfully represent structured data. This is because it does not support nesting nominal structures, it misuses fundamental data models and conflates types with properties. In addition, it lacks a clear separation between formatting whitespace and actual data, leading to data corruption. In this document we demonstrate these inherent structural flaws by comparing XML to JSON and by using trivial examples.
+XML is a bad choice as a data interchange format because it cannot faithfully represent structured data. This is because it does not support nesting nominal structures, it misuses fundamental data models and conflates types with properties. In addition, it lacks a clear separation between formatting whitespace and actual data, leading to data corruption. In this document we demonstrate these inherent structural flaws by comparing XML to JSON, using trivial examples.
 
 ## Introduction
 
