@@ -157,7 +157,7 @@ True equivalence would be a new hybrid structure in JSON that merges, not combin
 ```
 
 > [!NOTE]
-> This is exactly how arrays work in JS, we just can't define them via a single literal. In JS arrays are regular objects, therefore we can set arbitrary properties on them. In fact, array indices can work the same as any other object property:
+> This is exactly how arrays work in JS, we just can't define them via a single literal. In JS, arrays are regular objects, therefore we can set arbitrary properties on them. In fact, array indices can work the same as any other object property:
 > ```js
 > const arr = ["foo"]; //define ordinal members
 > arr.bar = "baz"; //define nominal members
