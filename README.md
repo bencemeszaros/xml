@@ -37,9 +37,11 @@ Nominal members can only be of type `string`, while ordinal members can be an ar
 
 ### Element Variations
 
-There are exactly four variations an XML element can have: ordinal part only, nominal part only, both ordinal and nominal parts and neither ordinal nor nominal part.
-
-<br>
+There are exactly four variations an XML element can have:
+- ordinal part only,
+- nominal part only,
+- both ordinal and nominal parts, and
+- neither ordinal nor nominal part.
 
 **1. Ordinal part only:** The element has element content but no attributes. This is equivalent to an array:
 
@@ -265,13 +267,13 @@ Simply put, we can either use a nominal structure with direct access but no nest
 
 Pushing nominal data into ordinal structures has another unintended consequence: it forces us to misuse types as well.
 
-XML tag names are essentially type declarations. We can demonstrate this by comparing an XML element to a JS class. A simple XML element like this:
+In XML, tag names are essentially type declarations. We can demonstrate this by comparing an XML element to a JS class. A simple XML element like this:
 
 ```xml
 <person name="John Doe" age="30" />
 ```
 
-Is structurally equivalent to this:
+is structurally equivalent to this:
 
 ```js
 class person {
