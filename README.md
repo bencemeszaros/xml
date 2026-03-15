@@ -169,7 +169,7 @@ True equivalence would be a new hybrid structure in JSON that merges, not combin
 
 <br>
 
-**4. Neither ordinal nor nominal part:** The element doesn't have element content and attributes. The equivalence here is also ambiguous: this can be either an empty array, an empty object or even other JSON data types. This is the true empty element. It is perfectly valid in XML and it does have a use case, for example the boolean type in <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/DevPedia-CocoaCore/PropertyList.html#//apple_ref/doc/uid/TP40008195-CH44-SW2" target="_blank">plist files</a>:
+**4. Neither ordinal nor nominal part:** The element doesn't have element content or attributes. The equivalence here is also ambiguous: it can be either an empty array, an empty object or even other JSON data types. This is the true empty element. It is perfectly valid in XML and it does have a use case, for example the boolean type in <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/DevPedia-CocoaCore/PropertyList.html#//apple_ref/doc/uid/TP40008195-CH44-SW2" target="_blank">plist files</a>:
 
 ```xml
 <true/>
@@ -199,12 +199,12 @@ If we want to store the name as a complex type like `<name first="John" last="Do
 1. Flatten complex data into multiple attributes. This workaround quickly gets out of hand as the depth grows:
 
 ```xml
-<_ spouse-personal-name-current-legal-first="Jane"/>
+<_ spouse-personal-name-current-legal-first="Jane" spouse-personal-name-current-legal-last="Doe"/>
 ```
 
 <br>
 
-2. Collapse complex data into a `string`. This presents the same problem, only it is now essentially a new language shoehorned into XML and it even has to carefully mix, escape or avoid using `<`, `>`, `'`, `"` and `&`:
+2. Collapse complex data into a `string`. This has the same problem, only it is now essentially a new language shoehorned into XML and it even has to carefully mix, escape or avoid using `<`, `>`, `'`, `"` and `&`:
 
 ```xml
 <_ name='first: "John"; last: "Doe"'/>
@@ -261,15 +261,15 @@ root.children[0].children[1].textContent; //maybe "Doe", maybe not
 root.getElementsByTagName("last-name")[0].textContent; //maybe "Doe", maybe not
 ```
 
-Regardless of what we try, we can never be sure that the first, second or nth child or element with the requested tag name is going to be what we need, it is essentially a constant guessing game. In addition, we always need to use `textContent` or something similar at the end to actually get the data we need and even without that our code is practically unreadable.
+Regardless of what we try, we can never be sure that the first, second or nth child or element with the requested tag name is going to be what we need, it is essentially a constant guessing game. In addition, we always need to use a final `textContent` or something similar to actually get the data we need and even without this our code is practically unreadable.
 
-Simply put, we can either use a nominal structure with direct access but no nesting, or use an ordinal structure with nesting but no direct access. The question shifts from "is it an ordinal or nominal data" to "do we want nesting or not".
+Simply put, we can either use a nominal structure with direct access but no nesting, or use an ordinal structure with nesting but no direct access. The question shifts from "is it ordinal or nominal data" to "do we want nesting or not".
 
 <br>
 
 ## Type Misuse
 
-Pushing ordinal structures for nominal data has another unintended consequence: it forces us to misuse types as well.
+Pushing nominal data into ordinal structures has another unintended consequence: it forces us to misuse types as well.
 
 XML tag names are essentially type declarations. We can demonstrate this by comparing an XML element to a JS class. A simple XML element like this:
 
@@ -509,7 +509,7 @@ in favor of this:
 </note>
 ```
 
-This is simply bad advice because the second example misuses an ordinal structure for nominal data, conflates types with keys and litters data with code formatting whitespace, only because XML arguments cannot branch. To demonstrate this, here is what the original author wanted to achieve:
+This is simply bad advice because the second example misuses an ordinal structure for nominal data, conflates types with keys and litters data with code formatting whitespace. To demonstrate this, here is what the original author wanted to achieve:
 
 ```json
 {
@@ -581,4 +581,4 @@ And here is what they actually ended up with instead:
 We can give much better advice:
 
 > [!IMPORTANT]
-> XML should be avoided as a data interchange format because it does not allow nesting nominal data, it forces nominal data into ordinal structures, it conflates types with properties and corrupts the data with code-formatting whitespace—none of which has a viable workaround.
+> XML should be avoided as a data interchange format because it does not allow nesting nominal data, it forces nominal data into ordinal structure, it conflates types with properties and corrupts the data with code-formatting whitespace—none of which has a viable workaround.
