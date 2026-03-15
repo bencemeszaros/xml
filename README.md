@@ -1,6 +1,8 @@
-# On the Structural Non-Equivalence of XML and JSON
+# Why XML Is a Fundamentally Flawed Choice for Data Interchange
 
 ## ABSTRACT
+
+- adjust this, make it more about XML and use JSON only as illustration
 
 JSON cannot faithfully represent XML data. This is because XML and JSON support vastly different types and declarations, but ultimately because unlike JSON, SGML and all its derivative languages including XML, cannot faithfully represent structured data themselves. In this document, we demonstrate the structural differences between XML and JSON and highlight the fundamental limitations in XML that make it a poor choice for representing structured data, using trivial examples.
 
@@ -180,7 +182,96 @@ true
 
 <br>
 
+## Nesting Limitation and Structure Misuse
+
+Now that we've established how XML implements ordinal and nominal structures, we can demonstrate how this implementation fails.
+
+One fundamental limitation in XML is that nominal members can only be of type `string`. This means they cannot be complex types, in other words they cannot branch.
+
+Suppose we have the following simple XML fragment:
+
+```xml
+<_ name="John Doe"/>
+```
+
+If we want to store the name as a complex type like `<name first="John" last="Doe"/>`, we cannot simply plug this into the `name` attribute, we have to flatten it into multiple attributes, collapse it into a `string` or substitute it with an ordinal structure, none of which is a viable solution.
+
+<br>
+
+1. Flatten complex data into multiple attributes. This workaround quickly gets out of hand as the depth grows:
+
+```xml
+<_ spouse-personal-name-current-legal-first="Jane"/>
+```
+
+<br>
+
+2. Collapse complex data into a `string`. This presents the same problem, only it is now essentially a new language shoehorned into XML and it even has to carefully mix, escape or avoid using `<`, `>`, `'`, `"` and `&`:
+
+```xml
+<_ name='first: "John"; last: "Doe"'/>
+```
+
+> [!NOTE]
+> This is essentially what inline CSS is in HTML. The following example is a deeply nested example of a nominal structure that cannot be expressed in HTML:
+> ```html
+> <div style="transition: background-color 0.3s cubic-bezier(0.68,-0.6,0.32,1.6) 0.1s;"></div>
+> ```
+> ```json
+> {
+>   "style": {
+>     "transition":  {
+>       "property": "background-color",
+>       "duration": 0.3,
+>       "timing": {
+>         "type": "cubic-bezier",
+>         "x1": 0.68,
+>         "y1": -0.6,
+>         "x2": 0.32,
+>         "y2": 1.6,
+>       "delay": 0.1
+>     }
+>   }
+> }
+> ```
+
+<br>
+
+3. Substitute complex data with an ordinal structure. This is often recommended as 'best' practice, even though this breaks our data model at a fundamental level.
+
+Suppose we convert our nominal data into an ordinal structure and add it to the element content:
+
+```xml
+<_>
+  <name>
+    <first-name>John</first-name>
+    <last-name>Doe</last-name>
+  </name>
+</_>
+```
+
+This looks harmless, until we try to access for example the last name. Instead of this:
+
+```js
+root.name.lastName; //"Doe"
+```
+
+We are forced to do something like this:
+
+```js
+root.children[0].children[1].textContent; //maybe "Doe", maybe not
+root.getElementsByTagName("last-name")[0].textContent; //maybe "Doe", maybe not
+```
+
+Regardless of what we try, we can never be sure that the first, second or nth child or element with the requested tag name is going to be what we need, it is essentially a constant guessing game. In addition, we always need to use `textContent` or something similar at the end to actually get the data we need and even without that our code is practically unreadable.
+
+Simply put, we can either use a nominal structure with direct access but no nesting, or use an ordinal structure with nesting but no direct access. The question shifts from "is it an ordinal or nominal data" to "do we want nesting or not".
+
+<br>
+
 ## Type Misuse
+
+Pushing ordinal structures for nominal data has another unintended consequence: it forces us to misuse types as well.
 
 XML tag names are essentially type declarations. We can demonstrate this by comparing an XML element to a JS class. A simple XML element like this:
 
@@ -197,131 +288,13 @@ class person {
 }
 ```
 
-The only difference is functionality: the first annotates an actual instance with type information while the second merely describes the shape of this type with some default values. However, in both cases the `person` declaration is neither a key nor a value, but a third, distinct concept. Na elolvastad te buzi? This distinction is important, because common 'best' practices appear to lack any understanding of the concept of types and routinely confuse type declarations with keys or values.
+The only difference is functionality: the first annotates an actual instance with type information while the second merely describes the shape of this type with some default values. Na elolvastad te buzi? However, in both cases the `person` declaration is neither a key nor a value, but a third, distinct concept. This distinction is important, because common 'best' practices appear to lack any understanding of the concept of types and routinely confuse type declarations with keys or values.
 
-For example, <a href="https://www.w3schools.com/xml/xml_attributes.asp">'best' practice dictates</a> that we should avoid this:
+---
+rework this section
 
-```xml
-<note
-  day="10"
-  month="01"
-  year="2008"
-  to="Tove"
-  from="Jani"
-  heading="Reminder"
-  body="Don't forget me this weekend!"
-></note>
-```
+(## Keys or Values)
 
-in favor of this:
-
-
-```xml
-<note>
-  <date>
-    <day>10</day>
-    <month>01</month>
-    <year>2008</year>
-  </date>
-  <to>Tove</to>
-  <from>Jani</from>
-  <heading>Reminder</heading>
-  <body>Don't forget me this weekend!</body>
-</note>
-```
-
-This is bad advice because the second example not only conflates types with keys, it also pushes nominal data into an ordinal model, breaking our data model at a fundamental level.
-
-To demonstrate this, here is what the original author wanted to achieve:
-
-```json
-{
-  "date": {
-    "day": 10,
-    "month": 1,
-    "year": 2008
-  },
-  "to": "Tove",
-  "from": "Jani",
-  "heading": "Reminder",
-  "body": "Don't forget me this weekend!"
-}
-```
-
-And here is what they actually ended up with instead:
-
-```json
-{
-  "@type": "note",
-  "@children": [
-    "\n  ",
-    {
-      "@type": "date",
-      "@children": [
-        "\n    ",
-        {
-          "@type": "day",
-          "@children": ["10"]
-        },
-        "\n    ",
-        {
-          "@type": "month",
-          "@children": ["01"]
-        },
-        "\n    ",
-        {
-          "@type": "year",
-          "@children": ["2008"]
-        },
-        "\n  "
-      ]
-    },
-    "\n  ",
-    {
-      "@type": "to",
-      "@children": ["Tove"]
-    },
-    "\n  ",
-    {
-      "@type": "from",
-      "@children": ["Jani"]
-    },
-    "\n  ",
-    {
-      "@type": "heading",
-      "@children": ["Reminder"]
-    },
-    "\n  ",
-    {
-      "@type": "body",
-      "@children": ["Don't forget me this weekend!"]
-    },
-    "\n"
-  ]
-}
-```
-
-To really drive this point home, let's plug the 'best' practice XML into JS (or any other programming language) and try to access the year for example. How should we do it?
-
-```js
-note.getElementsByTagName("year")[0].textContent; //like this?
-note.getElementsByTagName("date")[0].getElementsByTagName("year").textContent; //or this?
-note.children[0].children[2].textContent; //or maybe this?
-```
-No matter what we try, it is always a guessing game:
-- Is it the first `<year>` element in the entire document we need?
-- Is it the first `<date>` element, then its first `<year>` element we need?
-- Is the `<date>` element the first child of the root element, then its third child the `<year>` element we need?
-
-In contrast, this is what the author wanted to achieve:
-
-```js
-note.date.year;
-```
-
-This 'advice' stems from a completely unrelated limitation, namely that attribute values cannot branch. It would be much better advice not to use XML as a data interchange format because it cannot nest nominal data and all workarounds are nothing short of disastrous.
-
-## Keys or Values
 Unfortunately, JSON does not support any form of explicit type declarations, so ironically we have to map tag names either to a key or to a value. Again, the naive assumption is that now we can revert the ordinal structure back to a nominal structure as it was originally intended, but it is only possible in a rare and exceptional situation and even that has major downsides.
 
 Suppose we promote tag names to keys on the parent object. This is possible with extremely simple elements:
@@ -432,8 +405,11 @@ note [
   body ["Don't forget me this weekend!"]
 ]
 ```
+---
 
-## Whitespace Bleeding
+<br>
+
+## Whitespace Bleeding (rework this)
 
 But an even bigger issue is the treatment of whitespace in XML, which is inconsistent across contexts. In the attribute list around names and values it is always treated as formatting and thus discarded, but in the element content it is always treated as actual content and fully preserved by default. This has far reaching consequences.
 
@@ -499,9 +475,112 @@ In contrast, JSON clearly defines a boundary between content and formatting: whi
     ]
 ```
 
-At best, whitespace bleeding makes XML unsuitable for storing structured data, at worst, it is a major design flaw of the language because it prevents XML from fulfilling one of <a href="https://www.w3.org/TR/xml/#sec-origin-goals">its stated objectives</a>: it is either "human-legible and reasonably clear" or "easy to process", but not both.
+To put it simply, at best, whitespace bleeding makes XML unsuitable for storing structured data, at worst, it is a major design flaw of the language itself because it prevents XML from fulfilling one of <a href="https://www.w3.org/TR/xml/#sec-origin-goals">its stated objectives</a>: it is either "human-legible and reasonably clear" or "easy to process", but not both.
 
-## CONCLUSION
+<br>
+
+## 'Best' Practice
+
+A common <a href="https://www.w3schools.com/xml/xml_attributes.asp">'best' practice example</a> demonstrates all the previous points simultaneousy. This example dictates, that we should avoid this:
+
+```xml
+<note
+  day="10"
+  month="01"
+  year="2008"
+  to="Tove"
+  from="Jani"
+  heading="Reminder"
+  body="Don't forget me this weekend!"
+></note>
+```
+
+in favor of this:
+
+```xml
+<note>
+  <date>
+    <day>10</day>
+    <month>01</month>
+    <year>2008</year>
+  </date>
+  <to>Tove</to>
+  <from>Jani</from>
+  <heading>Reminder</heading>
+  <body>Don't forget me this weekend!</body>
+</note>
+```
+
+This is simply bad advice because the second example misuses an ordinal structure for nominal data, conflates types with keys and litters data with code formatting whitespace, only because XML arguments cannot branch. To demonstrate this, here is what the original author wanted to achieve:
+
+```json
+{
+  "date": {
+    "day": 10,
+    "month": 1,
+    "year": 2008
+  },
+  "to": "Tove",
+  "from": "Jani",
+  "heading": "Reminder",
+  "body": "Don't forget me this weekend!"
+}
+```
+
+And here is what they actually ended up with instead:
+
+```json
+{
+  "@type": "note",
+  "@children": [
+    "\n  ",
+    {
+      "@type": "date",
+      "@children": [
+        "\n    ",
+        {
+          "@type": "day",
+          "@children": ["10"]
+        },
+        "\n    ",
+        {
+          "@type": "month",
+          "@children": ["01"]
+        },
+        "\n    ",
+        {
+          "@type": "year",
+          "@children": ["2008"]
+        },
+        "\n  "
+      ]
+    },
+    "\n  ",
+    {
+      "@type": "to",
+      "@children": ["Tove"]
+    },
+    "\n  ",
+    {
+      "@type": "from",
+      "@children": ["Jani"]
+    },
+    "\n  ",
+    {
+      "@type": "heading",
+      "@children": ["Reminder"]
+    },
+    "\n  ",
+    {
+      "@type": "body",
+      "@children": ["Don't forget me this weekend!"]
+    },
+    "\n"
+  ]
+}
+```
+
+We can give much better advice:
 
 > [!IMPORTANT]
-> XML by design not only forces us to deliberately misuse type declarations and model types, it also corrupts our data.
+> XML should be avoided as a data interchange format because it does not allow nesting nominal data, it forces nominal data into ordinal structures, it conflates types with properties and corrupts the data with code-formatting whitespace—none of which has a viable workaround.
