@@ -2,17 +2,15 @@
 
 ## ABSTRACT
 
-- adjust this, make it more about XML and use JSON only as illustration
-
-JSON cannot faithfully represent XML data. This is because XML and JSON support vastly different types and declarations, but ultimately because unlike JSON, SGML and all its derivative languages including XML, cannot faithfully represent structured data themselves. In this document, we demonstrate the structural differences between XML and JSON and highlight the fundamental limitations in XML that make it a poor choice for representing structured data, using trivial examples.
+XML is a bad choice as a data interchange format because it cannot faithfully represent structured data. This is because it does not support nesting nominal structures, it misuses fundamental data models and conflates types with properties. In addition, it lacks a clear separation between formatting whitespace and actual data, leading to data corruption. In this document we demonstrate these inherent structural flaws by comparing XML to JSON and using trivial examples.
 
 <br>
 
 ## Introduction
 
-Today, XML is still widely used as a data interchange format. Thus, it is reasonable to expect that it is compatible with, or at the very least comparable to JSON, a language specifically designed for this purpose. In this document we will assess XML from this particular perspective, as a language used to <a href="https://en.wikipedia.org/wiki/XML">"store, transmit and reconstruct structured data"</a>.
+Today, XML is still widely used as a data interchange format. Thus, it is reasonable to expect that it is compatible with, or at the very least comparable to JSON, a language specifically designed for this purpose. In this document we will assess XML from this particular perspective, as a language used to <a href="https://en.wikipedia.org/wiki/XML">"store, transmit and reconstruct structured data."</a>
 
-Also, throughout this document we will refer to two language agnostic abstract structures that form the basis of structured data: ordinal and nominal structures.
+Throughout this document we will refer to two language agnostic abstract structures that form the basis of structured data: ordinal and nominal structures.
 
 **Ordinal structures** store data pieces (members) one after another, using a pre-determined order. Meaning is derived from this order thus the schema is not included with the data. They are also called indexed, ordered, positional or sequential structures, or arrays, lists, sets or sequences.
 
@@ -180,7 +178,7 @@ true
 
 <br>
 
-## Nesting Limitation and Structure Misuse
+## 1. Nesting Limitation and Structure Misuse
 
 Now that we've established how XML implements ordinal and nominal structures, we can demonstrate how this implementation fails.
 
@@ -267,7 +265,7 @@ Simply put, we can either use a nominal structure with direct access but no nest
 
 <br>
 
-## Type Misuse
+## 2. Type Misuse
 
 Pushing nominal data into ordinal structures has another unintended consequence: it forces us to misuse types as well.
 
@@ -407,7 +405,7 @@ note [
 
 <br>
 
-## Whitespace Bleeding (rework this)
+## 3. Whitespace Bleeding (rework this)
 
 But an even bigger issue is the treatment of whitespace in XML, which is inconsistent across contexts. In the attribute list around names and values it is always treated as formatting and thus discarded, but in the element content it is always treated as actual content and fully preserved by default. This has far reaching consequences.
 
