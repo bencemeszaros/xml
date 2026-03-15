@@ -178,7 +178,7 @@ true
 
 Now that we've established how XML implements ordinal and nominal structures, we can demonstrate how this implementation fails.
 
-One fundamental limitation in XML is that nominal members can only be of type `string`. This means they cannot be complex types, in other words they cannot branch.
+One fundamental limitation in XML is that nominal members can only be of type `string`. This means they cannot be complex types, therefore they cannot branch.
 
 Suppose we have the following simple XML fragment:
 
@@ -284,6 +284,7 @@ The only difference is functionality: the first annotates an actual instance wit
 
 ---
 rework this section
+- once we mix in nominal data into an ordinal model, it is practically impossible to separate the two
 
 (## Keys or Values)
 
