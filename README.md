@@ -6,7 +6,7 @@ JSON cannot faithfully represent XML data. This is because XML and JSON support 
 
 ## Introduction
 
-Today, XML is still widely used as a data interchange format. Thus, it is reasonable to expect that it is compatible with, or at the very least comparable to JSON, a language specifically designed for this purpose. In this document we will assess XML from this particular perspective, as a language used to "store, transmit and reconstruct structured data".[^1]
+Today, XML is still widely used as a data interchange format. Thus, it is reasonable to expect that it is compatible with, or at the very least comparable to JSON, a language specifically designed for this purpose. In this document we will assess XML from this particular perspective, as a language used to <a href="https://en.wikipedia.org/wiki/XML">"store, transmit and reconstruct structured data"</a>.
 
 Also, throughout this document we will refer to two language agnostic abstract structures that form the basis of structured data: ordinal and nominal structures.
 
@@ -23,7 +23,7 @@ From a data standpoint we can say that XML supports only one default type `strin
 - an optional nominal part, called the *attribute list*; and
 - an optional ordinal part, called the *element content*.
 
-The opening tag contains the tag name and the attribute list while the element content is between the opening and closing tags. Nominal members can only be of type `string`, while ordinal members can be an arbitrary mix of type `string` and any custom type. If there are no ordinal members, the opening tag can be merged with the closing tag, forming a so-called self-closing tag.
+Nominal members can only be of type `string`, while ordinal members can be an arbitrary mix of type `string` and any custom type.
 
 In addition, XML supports comments that conceptually act as self-closing tags with a single ordinal `string` member. Here is a brief overview of the main parts of XML:
 
@@ -180,121 +180,7 @@ true
 
 <br>
 
-
-
-
-
-## Elements
-
-The naive assumption is that an element is equivalent to an object. This is only true for a specific subset of elements, namely if they contain only nominal members:
-
-```xml
-<_ foo="bar"/>
-```
-```json
-{"foo": "bar"}
-```
-
-But it is entirely possible that an element contains only ordinal members, in which case it is equivalent to an array instead:
-
-```xml
-<_>foo</_>
-```
-```json
-["foo"]
-```
-
-Then, of course there is the third subset of elements that have both ordinal and nominal members. Here, the next naive assumption is that a combination of an array and an object would suffice, but this would produce a different graph since an element holds ordinal and nominal members within a single construct.
-
-Suppose we have a complex XML element:
-
-```xml
-<_ foo="bar">baz</_>
-```
-
-If we try to approximate this element with a combination of an array and an object we only have two options: we can either nest an array into an object or an object into an array.
-
-- If we nest an array into an object we also need a surrogate property and a naming convention to avoid clashing with an existing attribute. A common approach is to use a name that would be invalid as an attribute:
-
-```json
-{
-    "foo": "bar",
-    "@children": ["baz"]
-}
-```
-
-- If we nest an object into an array the result is ambiguous and we also need a convention to define how we manipulate the indices within the element content:
-
-```json
-[
-    {"foo": "bar"},
-    "baz"
-]
-```
-
-Regardless of our choice, both options produce a different graph: instead of a single graph vertex we always need two. In practical terms, the JSON graph will be twice as big and twice as deep as the original XML graph.
-
-For example, an XML graph with 3 vertices and a depth of 3:
-
-```xml
-<_>
-  <_>
-    <_></_>
-  </_>
-</_>
-```
-
-would equate to a JSON graph with 6 vertices and a depth of 6:
-
-```json
-{
-  "@children": [
-    {
-      "@children": [
-        {
-          "@children": []
-        }
-      ]
-    }
-  ]
-}
-```
-
-or at the minimum to a JSON graph with 6 vertices and a depth of 4:
-
-```json
-[
-  {},
-  [
-    {},
-    [
-      {}
-    ]
-  ]
-]
-```
-
-If we want true equivalence we would need to add a new hybrid structure to JSON that merges, not combines, an ordinal and a nominal structure. This would also work for all three subsets of XML elements:
-
-```pseudo-json
-(
-    "foo": "bar",
-    "baz"
-)
-```
-
-> [!NOTE]
-> This is exactly how arrays work in JS, we just can't define them via a single literal. In JS arrays are regular objects, therefore we can set arbitrary properties on them. In fact, array indices can work the same as any other object property:
-> ```js
-> const arr = ["foo"]; //define ordinal members
-> arr.bar = "baz"; //define nominal members
->
-> arr[0]; //"foo"
-> arr["0"]; //"foo" (works as any other property)
-> arr["bar"]; //"baz" (stored directly on the array)
-> ```
-
-## Tag Names
+## Type Misuse
 
 XML tag names are essentially type declarations. We can demonstrate this by comparing an XML element to a JS class. A simple XML element like this:
 
@@ -311,9 +197,9 @@ class person {
 }
 ```
 
-The only difference is functionality: the first annotates an actual instance with type information while the second merely describes the shape of this type with some default values. However, in both cases the `person` declaration is neither a key nor a value, but a third, distinct concept. This distinction is important, because common 'best' practices appear to lack any understanding of the concept of types and routinely confuse type declarations with keys or values.
+The only difference is functionality: the first annotates an actual instance with type information while the second merely describes the shape of this type with some default values. However, in both cases the `person` declaration is neither a key nor a value, but a third, distinct concept. Na elolvastad te buzi? This distinction is important, because common 'best' practices appear to lack any understanding of the concept of types and routinely confuse type declarations with keys or values.
 
-For example, 'best' practice dictates[^2] that we should avoid this:
+For example, <a href="https://www.w3schools.com/xml/xml_attributes.asp">'best' practice dictates</a> that we should avoid this:
 
 ```xml
 <note
@@ -529,9 +415,9 @@ Or:
 }
 ```
 
-This is exactly where badgerfish, a popular XML-to-JSON convention, gave up too.[^3]
+This is exactly where <a href="http://www.sklar.com/badgerfish/">badgerfish</a>, a popular XML-to-JSON convention, gave up too.
 
-If we want true equivalence we would need to add type declarations to JSON. This is an interesting idea because it also demonstrates how badly the 'best' practice XML actually performs:
+If we want true equivalence we would need to add type declarations to JSON. This is an interesting idea because it also demonstrates how badly the 'best' practice XML example actually performs:
 
 ```pseudo-json
 note [
@@ -547,7 +433,7 @@ note [
 ]
 ```
 
-## Whitespace
+## Whitespace Bleeding
 
 But an even bigger issue is the treatment of whitespace in XML, which is inconsistent across contexts. In the attribute list around names and values it is always treated as formatting and thus discarded, but in the element content it is always treated as actual content and fully preserved by default. This has far reaching consequences.
 
@@ -613,49 +499,9 @@ In contrast, JSON clearly defines a boundary between content and formatting: whi
     ]
 ```
 
-At best, whitespace bleeding makes XML unsuitable for storing structured data, at worst, it is a major design flaw of the language because it prevents XML from fulfilling one of its stated objectives: it is either "human-legible and reasonably clear" or "easy to process", but not both.[^4]
+At best, whitespace bleeding makes XML unsuitable for storing structured data, at worst, it is a major design flaw of the language because it prevents XML from fulfilling one of <a href="https://www.w3.org/TR/xml/#sec-origin-goals">its stated objectives</a>: it is either "human-legible and reasonably clear" or "easy to process", but not both.
 
 ## CONCLUSION
 
 > [!IMPORTANT]
 > XML by design not only forces us to deliberately misuse type declarations and model types, it also corrupts our data.
-
-[^1]: https://en.wikipedia.org/wiki/XML
-[^2]: https://www.w3schools.com/xml/xml_attributes.asp
-[^3]: http://www.sklar.com/badgerfish/
-[^4]: https://www.w3.org/TR/xml/#sec-origin-goals
-
-
-
-## Converting Text Nodes (drop this?)
-
-This leads to another unsolvable dilemma:
-- If we treat pure text and child elements the same inside the element content, this example would equate to a JSON like this:
-- 
-```json
-[
-  "\n  ",
-  ["Dogs"],
-  "\n  chase\n  ",
-  ["cats"],
-  "\n"
-]
-```
-
-- And if we somehow separate them, we won’t be able to reconstruct the original order:
-- 
-```json
-{
-  "@children": [
-    {
-```
-
-Even in trivial cases it is very difficult, or even impossible, to separate whitespace we want to keep as data from whitespace we want to discard as formatting.
-
-
-
-- mapping string, custom hybrids to null, boolean, number, string, array, object
-- plist dict to object? Other types?
-
-## Converting Comments (merge with text nodes/whitespace?)
-## Converting the Prolog (maybe not important)
