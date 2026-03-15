@@ -105,9 +105,7 @@ There are exactly four variations an XML element can have: ordinal part only, no
     ]
     ```
 
-In both cases the resulting graph is different than the original because the element holds ordinal and nominal members within a single construct.
-
-In technical terms, for each graph vertex we always need two. In practical terms the JSON tree is twice as big and twice as deep as its XML counterpart:
+In both cases the resulting graph is different than the original because the element holds ordinal and nominal members within a single construct. In technical terms, for each graph vertex we always need two. In practical terms the JSON tree is twice as big and twice as deep as its XML counterpart.
 
 For example, an XML graph with 3 vertices and a depth of 3:
 
