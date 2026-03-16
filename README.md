@@ -233,7 +233,7 @@ If we want to store the name as a complex type like `<name first="John" last="Do
 
 3. Substitute complex data with an ordinal structure. This is often recommended as 'best' practice, even though this breaks our data model at a fundamental level.
 
-Suppose we convert our nominal data into an ordinal structure and add it to the element content:
+    Suppose we convert our nominal data into an ordinal structure and add it to the element content:
 
 ```xml
 <_>
