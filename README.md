@@ -235,14 +235,14 @@ If we want to store the name as a complex type like `<name first="John" last="Do
 
     Suppose we convert our nominal data into an ordinal structure and add it to the element content:
 
-```xml
-<_>
-  <name>
-    <first-name>John</first-name>
-    <last-name>Doe</last-name>
-  </name>
-</_>
-```
+    ```xml
+    <_>
+      <name>
+        <first-name>John</first-name>
+        <last-name>Doe</last-name>
+      </name>
+    </_>
+    ```
 
 This looks harmless, until we try to access for example the last name. Instead of this:
 
