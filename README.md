@@ -37,13 +37,14 @@ Nominal members can only be of type `string`, while ordinal members can be an ar
 
 ### Element Variations
 
-There are exactly four variations an XML element can have:
-- ordinal part only,
-- nominal part only,
-- both ordinal and nominal parts, and
+There are exactly four possible variations of an XML element:
+- ordinal part only;
+- nominal part only;
+- both ordinal and nominal parts; and
 - neither ordinal nor nominal part.
 
-**1. Ordinal part only:** The element has element content but no attributes. This is equivalent to an array:
+#### 1. Ordinal part only
+The element has element content but no attributes. This is equivalent to an array:
 
 ```xml
 <_>foo</_>
@@ -54,7 +55,8 @@ There are exactly four variations an XML element can have:
 
 <br>
 
-**2. Nominal part only:** The element has attributes but no element content. This is equivalent to an object:
+#### 2. Nominal part only
+The element has attributes but no element content. This is equivalent to an object:
 
 ```xml
 <_ foo="bar"></_>
@@ -77,7 +79,8 @@ There are exactly four variations an XML element can have:
 
 <br>
 
-**3. Both ordinal and nominal parts:** The element has element content and attributes. There is no equivalent in JSON, we can only approximate this variation with a combination of an array and an object, but it is ambiguous:
+#### 3. Both ordinal and nominal parts
+The element has element content and attributes. There is no equivalent in JSON, we can only approximate this variation with a combination of an array and an object, but it is ambiguous:
 
 ```xml
 <_ foo="bar">baz</_>
@@ -165,7 +168,8 @@ True equivalence would be a new hybrid structure in JSON that merges, not combin
 
 <br>
 
-**4. Neither ordinal nor nominal part:** The element doesn't have element content or attributes. The equivalence here is also ambiguous: it can be either an empty array, an empty object or even other JSON data types. This is the true empty element. It is perfectly valid in XML and it does have a use case, for example the boolean type in <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/DevPedia-CocoaCore/PropertyList.html#//apple_ref/doc/uid/TP40008195-CH44-SW2" target="_blank">plist files</a>:
+#### 4. Neither ordinal nor nominal part
+The element doesn't have element content or attributes. The equivalence here is also ambiguous: it can be either an empty array, an empty object or even other JSON data types. This is the true empty element. It is perfectly valid in XML and it does have a use case, for example the boolean type in <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/DevPedia-CocoaCore/PropertyList.html#//apple_ref/doc/uid/TP40008195-CH44-SW2" target="_blank">plist files</a>:
 
 ```xml
 <true/>
@@ -180,7 +184,7 @@ true
 
 Now that we've established how XML implements ordinal and nominal structures, we can demonstrate how this implementation fails.
 
-One fundamental limitation in XML is that nominal members can only be of type `string`. This means they cannot be complex types, therefore they cannot branch.
+One fundamental limitation in XML is that nominal members can only be of type `string`, which means they cannot be complex types, therefore cannot branch.
 
 Suppose we have the following simple XML fragment:
 
@@ -222,7 +226,8 @@ If we want to store the name as a complex type like `<name first="John" last="Do
 >         "x1": 0.68,
 >         "y1": -0.6,
 >         "x2": 0.32,
->         "y2": 1.6,
+>         "y2": 1.6
+>       },
 >       "delay": 0.1
 >     }
 >   }
@@ -233,16 +238,16 @@ If we want to store the name as a complex type like `<name first="John" last="Do
 
 3. Substitute complex data with an ordinal structure. This is often recommended as 'best' practice, even though this breaks our data model at a fundamental level.
 
-    Suppose we convert our nominal data into an ordinal structure and add it to the element content:
+Suppose we convert our nominal data into an ordinal structure and add it to the element content:
 
-    ```xml
-    <_>
-      <name>
-        <first-name>John</first-name>
-        <last-name>Doe</last-name>
-      </name>
-    </_>
-    ```
+```xml
+<_>
+  <name>
+    <first-name>John</first-name>
+    <last-name>Doe</last-name>
+  </name>
+</_>
+```
 
 This looks harmless, until we try to access for example the last name. Instead of this:
 
