@@ -4,6 +4,8 @@
 
 XML is a bad choice as a data interchange format because it cannot faithfully represent structured data. This is because it does not support nesting nominal structures, it misuses fundamental data models and conflates types with properties. In addition, it lacks a clear separation between formatting whitespace and actual data, leading to data corruption. In this document we demonstrate these inherent structural flaws by comparing XML to JSON, using trivial examples.
 
+<br>
+
 ## Introduction
 
 Today, XML is still widely used as a data interchange format. Thus, it is reasonable to expect that it is compatible with, or at the very least comparable to JSON, a language specifically designed for this purpose. In this document we will assess XML from this particular perspective, as a language used to <a href="https://en.wikipedia.org/wiki/XML">"store, transmit and reconstruct structured data."</a>
@@ -15,6 +17,8 @@ Throughout this document we will refer to two language agnostic abstract structu
 **Nominal structures** store data pieces (members) as associations, usually as key-value pairs, without regard to their order. Meaning is derived from the specific associations thus the schema is included with the data. They are also called associative, keyed, labeled, mapped or named structures, or dictionaries, maps or objects.
 
 Finally, this document is a practical guide, not a theoretical or academic analysis. It also presumes that the reader has a basic working knowledge of both XML and JSON.
+
+<br>
 
 ## Anatomy of XML
 
@@ -53,8 +57,6 @@ The element has element content but no attributes. This is equivalent to an arra
 ["foo"]
 ```
 
-<br>
-
 #### 2. Nominal part only
 The element has attributes but no element content. This is equivalent to an object:
 
@@ -76,8 +78,6 @@ The element has attributes but no element content. This is equivalent to an obje
 > ```xml
 > <img src="image.png"/>
 > ```
-
-<br>
 
 #### 3. Both ordinal and nominal parts
 The element has element content and attributes. There is no equivalent in JSON, we can only approximate this variation with a combination of an array and an object, but it is ambiguous:
@@ -165,8 +165,6 @@ True equivalence would be a new hybrid structure in JSON that merges, not combin
 > arr["0"]; //"foo" (works as any other property)
 > arr["bar"]; //"baz" (stored directly on the array)
 > ```
-
-<br>
 
 #### 4. Neither ordinal nor nominal part
 The element doesn't have element content or attributes. The equivalence here is also ambiguous: it can be either an empty array, an empty object or even other JSON data types. This is the true empty element. It is perfectly valid in XML and it does have a use case, for example the boolean type in <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/DevPedia-CocoaCore/PropertyList.html#//apple_ref/doc/uid/TP40008195-CH44-SW2" target="_blank">plist files</a>:
