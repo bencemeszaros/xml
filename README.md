@@ -83,7 +83,7 @@ The third option is when the element has both element content and attributes. Th
 <_ foo="bar">baz</_>
 ```
 
-- An array nested into an object. In this case we need a surrogate property and a naming convention to avoid collision with an existing attribute. A common approach is to use a name that would be invalid as an attribute:
+- One option is to nest an array into an object. In this case we need a surrogate property and a naming convention to avoid collision with an existing attribute. A common approach is to use a name that would be invalid as an attribute:
 
 ```json
 {
@@ -92,7 +92,7 @@ The third option is when the element has both element content and attributes. Th
 }
 ```
 
-- An object nested into an array. In this case we need a convention to avoid ambiguity and define how we manipulate the indices within the element content:
+- The other option is to nest an object into an array. In this case we need a convention to avoid ambiguity and define how we manipulate the indices within the element content:
 
 ```json
 [
@@ -101,7 +101,7 @@ The third option is when the element has both element content and attributes. Th
 ]
 ```
 
-In both cases the resulting graph is different than the original because the element holds ordinal and nominal members within a single construct. In technical terms, for each graph vertex we always need two. In practical terms the JSON tree is twice as big and twice as deep as its XML counterpart.
+However, in both cases the resulting graph is different than the original because the XML element holds ordinal and nominal members within a single construct. In technical terms, for each graph vertex we always need two. In practical terms the JSON tree is twice as big and twice as deep as its XML counterpart.
 
 For example, an XML graph with 3 vertices and a depth of 3:
 
