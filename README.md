@@ -41,7 +41,7 @@ There are exactly four possible variations of an XML element:
 - both ordinal and nominal parts; and
 - neither ordinal nor nominal part.
 
-**Ordinal part only**
+### Ordinal part only
 
 The element has element content but no attributes. This is equivalent to an array:
 
@@ -52,7 +52,7 @@ The element has element content but no attributes. This is equivalent to an arra
 ["foo"]
 ```
 
-**Nominal part only**
+### Nominal part only
 
 The element has attributes but no element content. This is equivalent to an object:
 
@@ -75,7 +75,7 @@ The element has attributes but no element content. This is equivalent to an obje
 > <img src="image.png"/>
 > ```
 
-**Both ordinal and nominal parts**
+### Both ordinal and nominal parts
 
 The element has element content and attributes. There is no equivalent in JSON, we can only approximate this variation with a combination of an array and an object, but it is ambiguous:
 
@@ -163,7 +163,7 @@ True equivalence would be a new hybrid structure in JSON that merges, not combin
 > arr["bar"]; //"baz" (stored directly on the array)
 > ```
 
-**Neither ordinal nor nominal part**
+### Neither ordinal nor nominal part
 
 The element doesn't have element content or attributes. The equivalence here is also ambiguous: it can be either an empty array, an empty object or even other JSON data types. This is the true empty element. It is perfectly valid in XML and it does have a use case, for example the boolean type in <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/DevPedia-CocoaCore/PropertyList.html#//apple_ref/doc/uid/TP40008195-CH44-SW2" target="_blank">plist files</a>:
 
