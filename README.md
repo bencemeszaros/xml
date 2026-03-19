@@ -86,8 +86,7 @@ The element has element content and attributes. There is no equivalent in JSON, 
 <_ foo="bar">baz</_>
 ```
 
-##### 1. An array nested into an object.
-In this case we need a surrogate property and a naming convention to avoid collision with an existing attribute. A common approach is to use a name that would be invalid as an attribute:
+1. An array nested into an object. In this case we need a surrogate property and a naming convention to avoid collision with an existing attribute. A common approach is to use a name that would be invalid as an attribute:
 
 ```json
 {
@@ -96,8 +95,7 @@ In this case we need a surrogate property and a naming convention to avoid colli
 }
 ```
 
-##### 2. An object nested into an array.
-In this case we need a convention to avoid ambiguity and define how we manipulate the indices within the element content:
+2. An object nested into an array. In this case we need a convention to avoid ambiguity and define how we manipulate the indices within the element content:
 
 ```json
 [
@@ -194,17 +192,15 @@ Suppose we have the following simple XML fragment:
 
 If we want to store the name as a complex type like `<name first="John" last="Doe"/>`, we cannot simply plug this into the `name` attribute, we have to flatten it into multiple attributes, collapse it into a `string` or substitute it with an ordinal structure, none of which is a viable solution.
 
-<br>
-
-1. Flatten complex data into multiple attributes. This workaround quickly gets out of hand as the depth grows:
+### 1. Flatten complex data into multiple attributes
+This workaround quickly gets out of hand as the depth grows:
 
 ```xml
 <_ spouse-personal-name-current-legal-first="Jane" spouse-personal-name-current-legal-last="Doe"/>
 ```
 
-<br>
-
-2. Collapse complex data into a `string`. This has the same problem, only it is now essentially a new language shoehorned into XML and it even has to carefully mix, escape or avoid using `<`, `>`, `'`, `"` and `&`:
+### 2. Collapse complex data into a `string`
+This has the same problem, only it is now essentially a new language shoehorned into XML and it even has to carefully mix, escape or avoid using `<`, `>`, `'`, `"` and `&`:
 
 ```xml
 <_ name='first: "John"; last: "Doe"'/>
@@ -234,9 +230,8 @@ If we want to store the name as a complex type like `<name first="John" last="Do
 > }
 > ```
 
-<br>
-
-3. Substitute complex data with an ordinal structure. This is often recommended as 'best' practice, even though this breaks our data model at a fundamental level.
+### 3. Substitute complex data with an ordinal structure
+This is often recommended as 'best' practice, even though this breaks our data model at a fundamental level.
 
 Suppose we convert our nominal data into an ordinal structure and add it to the element content:
 
