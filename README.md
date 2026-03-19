@@ -2,9 +2,7 @@
 
 ## ABSTRACT
 
-XML is a bad choice as a data interchange format because it cannot faithfully represent structured data. This is because it does not support nesting nominal structures, it misuses fundamental data models and conflates types with properties. In addition, it lacks a clear separation between formatting whitespace and actual data, leading to data corruption. In this document we demonstrate these inherent structural flaws by comparing XML to JSON, using trivial examples.
-
-<br>
+XML is a bad choice as a data interchange format because it cannot faithfully represent structured data. This is because it does not support nesting in nominal structures, it misuses fundamental data models and conflates types with properties. In addition, it lacks a clear separation between formatting whitespace and actual data, leading to data corruption. In this document we demonstrate these inherent structural flaws by comparing XML to JSON, using trivial examples.
 
 ## Introduction
 
@@ -12,13 +10,11 @@ Today, XML is still widely used as a data interchange format. Thus, it is reason
 
 Throughout this document we will refer to two language agnostic abstract structures that form the basis of structured data: ordinal and nominal structures.
 
-**Ordinal structures** store data pieces (members) one after another, using a pre-determined order. Meaning is derived from this order thus the schema is not included with the data. They are also called indexed, ordered, positional or sequential structures, or arrays, lists, sets or sequences.
+**Ordinal structures** store data pieces (members) one after another, using a pre-determined order. Meaning is derived from this order, thus the schema is not included with the data. They are also called indexed, ordered, positional or sequential structures, or arrays, lists, sets or sequences.
 
-**Nominal structures** store data pieces (members) as associations, usually as key-value pairs, without regard to their order. Meaning is derived from the specific associations thus the schema is included with the data. They are also called associative, keyed, labeled, mapped or named structures, or dictionaries, maps or objects.
+**Nominal structures** store data pieces (members) as associations, usually as key-value pairs, without regard to their order. Meaning is derived from the specific associations, thus the schema is included with the data. They are also called associative, keyed, labeled, mapped or named structures, or dictionaries, maps or objects.
 
 Finally, this document is a practical guide, not a theoretical or academic analysis. It also presumes that the reader has a basic working knowledge of both XML and JSON.
-
-<br>
 
 ## Anatomy of XML
 
@@ -26,8 +22,6 @@ From a data standpoint we can say that XML supports only one default type `strin
 - a mandatory type declaration, called the *tag name*;
 - an optional nominal part, called the *attribute list*; and
 - an optional ordinal part, called the *element content*.
-
-Nominal members can only be of type `string`, while ordinal members can be an arbitrary mix of type `string` and any custom type:
 
 ```xml
 <tag-name attribute-name="attribute-value">element content</tag-name>
@@ -47,7 +41,7 @@ There are exactly four possible variations of an XML element:
 - both ordinal and nominal parts; and
 - neither ordinal nor nominal part.
 
-#### 1. Ordinal part only
+#### Ordinal part only
 The element has element content but no attributes. This is equivalent to an array:
 
 ```xml
@@ -57,7 +51,7 @@ The element has element content but no attributes. This is equivalent to an arra
 ["foo"]
 ```
 
-#### 2. Nominal part only
+#### Nominal part only
 The element has attributes but no element content. This is equivalent to an object:
 
 ```xml
@@ -79,14 +73,14 @@ The element has attributes but no element content. This is equivalent to an obje
 > <img src="image.png"/>
 > ```
 
-#### 3. Both ordinal and nominal parts
+#### Both ordinal and nominal parts
 The element has element content and attributes. There is no equivalent in JSON, we can only approximate this variation with a combination of an array and an object, but it is ambiguous:
 
 ```xml
 <_ foo="bar">baz</_>
 ```
 
-1. An array nested into an object. In this case we need a surrogate property and a naming convention to avoid collision with an existing attribute. A common approach is to use a name that would be invalid as an attribute:
+- An array nested into an object. In this case we need a surrogate property and a naming convention to avoid collision with an existing attribute. A common approach is to use a name that would be invalid as an attribute:
 
 ```json
 {
@@ -95,7 +89,7 @@ The element has element content and attributes. There is no equivalent in JSON, 
 }
 ```
 
-2. An object nested into an array. In this case we need a convention to avoid ambiguity and define how we manipulate the indices within the element content:
+- An object nested into an array. In this case we need a convention to avoid ambiguity and define how we manipulate the indices within the element content:
 
 ```json
 [
@@ -166,7 +160,7 @@ True equivalence would be a new hybrid structure in JSON that merges, not combin
 > arr["bar"]; //"baz" (stored directly on the array)
 > ```
 
-#### 4. Neither ordinal nor nominal part
+#### Neither ordinal nor nominal part
 The element doesn't have element content or attributes. The equivalence here is also ambiguous: it can be either an empty array, an empty object or even other JSON data types. This is the true empty element. It is perfectly valid in XML and it does have a use case, for example the boolean type in <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/DevPedia-CocoaCore/PropertyList.html#//apple_ref/doc/uid/TP40008195-CH44-SW2" target="_blank">plist files</a>:
 
 ```xml
@@ -176,13 +170,9 @@ The element doesn't have element content or attributes. The equivalence here is 
 true
 ```
 
-<br>
+## Nesting Limitation and Workarounds
 
-## 1. Nesting Limitation and Structure Misuse
-
-Now that we've established how XML implements ordinal and nominal structures, we can demonstrate how this implementation fails.
-
-One fundamental limitation in XML is that nominal members can only be of type `string`, which means they cannot be complex types, therefore cannot branch.
+Now that we've established how XML implements ordinal and nominal structures, we can demonstrate how this implementation fails. Generally speaking the problem is, XML unnecessarily treats ordinal and nominal structures differently. One such example is that ordinal members can be of any type, while nominal members can only be of type `string`. This means that nominal members cannot be complex types, therefore cannot branch. This limitation has far reaching consequences.
 
 Suppose we have the following simple XML fragment:
 
@@ -190,16 +180,16 @@ Suppose we have the following simple XML fragment:
 <_ name="John Doe"/>
 ```
 
-If we want to store the name as a complex type like `<name first="John" last="Doe"/>`, we cannot simply plug this into the `name` attribute, we have to flatten it into multiple attributes, collapse it into a `string` or substitute it with an ordinal structure, none of which is a viable solution.
+If we want to store the name as a complex type like `<name first="John" last="Doe"/>`, we cannot simply plug this into the `name` attribute, we have to flatten it into one or multiple attributes, collapse it into a `string` or misuse an ordinal structure for this data, none of which is a viable solution.
 
-### 1. Flatten complex data into multiple attributes
+### Flatten complex data into multiple attributes
 This workaround quickly gets out of hand as the depth grows:
 
 ```xml
 <_ spouse-personal-name-current-legal-first="Jane" spouse-personal-name-current-legal-last="Doe"/>
 ```
 
-### 2. Collapse complex data into a `string`
+### Collapse complex data into a `string`
 This has the same problem, only it is now essentially a new language shoehorned into XML and it even has to carefully mix, escape or avoid using `<`, `>`, `'`, `"` and `&`:
 
 ```xml
@@ -230,10 +220,10 @@ This has the same problem, only it is now essentially a new language shoehorned 
 > }
 > ```
 
-### 3. Substitute complex data with an ordinal structure
+### Misuse an ordinal structure for nominal data
 This is often recommended as 'best' practice, even though this breaks our data model at a fundamental level.
 
-Suppose we convert our nominal data into an ordinal structure and add it to the element content:
+Suppose we convert the previous nominal data into an ordinal structure and add it to the element content:
 
 ```xml
 <_>
@@ -259,13 +249,13 @@ root.getElementsByTagName("last-name")[0].textContent; //maybe "Doe", maybe not
 
 Regardless of what we try, we can never be sure that the first, second or nth child or element with the requested tag name is going to be what we need, it is essentially a constant guessing game. In addition, we always need to use a final `textContent` or something similar to actually get the data we need and even without this our code is practically unreadable.
 
-Simply put, we can either use a nominal structure with direct access but no nesting, or use an ordinal structure with nesting but no direct access. The question shifts from "is it ordinal or nominal data" to "do we want nesting or not".
+This problem is subtle and deceptive since it is easy to encode a nominal structure into an ordinal structure, but it is extremely hard to decode an ordinal structure back to the original nominal structure. If you only care about encoding, you'll probably never realize this fundamental problem.
 
-<br>
+To put it simply, we can either use a nominal structure with direct access but no nesting, or use an ordinal structure with nesting but no direct access. The question shifts from "is it ordinal or nominal data" to "do we want nesting or not".
 
-## 2. Type Misuse
+## Type Misuse
 
-Pushing nominal data into ordinal structures has another unintended consequence: it forces us to misuse types as well.
+But pushing nominal data into ordinal structures has another unintended consequence: it forces us to misuse types as well.
 
 In XML, tag names are essentially type declarations. We can demonstrate this by comparing an XML element to a JS class. A simple XML element like this:
 
@@ -282,7 +272,13 @@ class person {
 }
 ```
 
-The only difference is functionality: the first annotates an actual instance with type information while the second merely describes the shape of this type with some default values. Na elolvastad te buzi? However, in both cases the `person` declaration is neither a key nor a value, but a third, distinct concept. This distinction is important, because common 'best' practices appear to lack any understanding of the concept of types and routinely confuse type declarations with keys or values.
+The only difference is functionality: the first annotates an actual instance with type information while the second merely describes the shape of this type with some default values. Na elolvastad te buzi? However, in both cases the `person` declaration is neither a key nor a value, but a third, distinct concept. This distinction is important,
+
+
+
+
+
+because common 'best' practices appear to lack any understanding of the concept of types and routinely confuse type declarations with keys or values.
 
 ---
 rework this section
@@ -305,7 +301,7 @@ Suppose we promote tag names to keys on the parent object. This is possible with
 
 However, the root element has no parent, the surrogate keys can clash with existing attributes, it is entirely possible that an element has multiple children with the same tag name and that it has text nodes along with its element children.
 
-1. Surrogate root element alters our graph:
+- Surrogate root element alters our graph:
 
 ```xml
 <a/>
@@ -316,7 +312,7 @@ However, the root element has no parent, the surrogate keys can clash with exist
 }
 ```
 
-2. Surrogate tag properties clash with attribute properties and the workaround is ambiguous:
+- Surrogate tag properties clash with attribute properties and the workaround is ambiguous:
 
 ```xml
 <_ a="foo"><a/></_>
@@ -337,7 +333,7 @@ Or:
 }
 ```
 
-3. Multiple children with the same tag name needs a surrogate array that alters our graph once again:
+- Multiple children with the same tag name needs a surrogate array that alters our graph once again:
 
 ```xml
 <_><a/><a/></_>
@@ -351,7 +347,7 @@ Or:
 }
 ```
 
-4. Text nodes mixed with child elements don't even have a possible workaround:
+- Text nodes mixed with child elements don't even have a possible workaround:
 
 ```xml
 <_ text="foo"><a>bar</a>baz</_>
@@ -404,9 +400,9 @@ note [
 
 <br>
 
-## 3. Whitespace Bleeding (rework this)
+## Whitespace Bleeding
 
-But an even bigger issue is the treatment of whitespace in XML, which is inconsistent across contexts. In the attribute list around names and values it is always treated as formatting and thus discarded, but in the element content it is always treated as actual content and fully preserved by default. This has far reaching consequences.
+Whitespace handling is another area where XML treats ordinal and nominal structures differently. In the attribute list around names and values it is always treated as formatting and thus discarded, but in the element content it is always treated as actual content and fully preserved by default. This also has far reaching consequences.
 
 For example, the following two examples are equivalent:
 
@@ -472,8 +468,6 @@ In contrast, JSON clearly defines a boundary between content and formatting: whi
 
 To put it simply, at best, whitespace bleeding makes XML unsuitable for storing structured data, at worst, it is a major design flaw of the language itself because it prevents XML from fulfilling one of <a href="https://www.w3.org/TR/xml/#sec-origin-goals">its stated objectives</a>: it is either "human-legible and reasonably clear" or "easy to process", but not both.
 
-<br>
-
 ## 'Best' Practice
 
 A common <a href="https://www.w3schools.com/xml/xml_attributes.asp">'best' practice example</a> demonstrates all previous points simultaneousy. This example dictates that we should avoid this:
@@ -506,7 +500,7 @@ in favor of this:
 </note>
 ```
 
-This is simply bad advice because the second example misuses an ordinal structure for nominal data, conflates types with keys and litters data with code formatting whitespace. To demonstrate this, here is what the original author wanted to achieve:
+This is simply bad advice because the second example misuses an ordinal structure for nominal data, conflates types with keys and litters data with code formatting whitespace. To really drive this point home, here is what the original author wanted to achieve:
 
 ```json
 {
@@ -578,4 +572,4 @@ And here is what they actually ended up with instead:
 We can give much better advice:
 
 > [!IMPORTANT]
-> XML should be avoided as a data interchange format because it does not allow nesting nominal data, it forces nominal data into ordinal structure, it conflates types with properties and corrupts the data with code-formatting whitespace—none of which has a viable workaround.
+> XML should be avoided as a data interchange format because it does not allow nesting in nominal structures, it forces nominal data into ordinal structures, it conflates types with properties and corrupts data with code-formatting whitespace—none of which has a viable workaround.
