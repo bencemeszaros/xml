@@ -14,7 +14,7 @@ Throughout this document we will refer to two language agnostic abstract structu
 
 **Nominal structures** store data pieces (members) as associations, usually as key-value pairs, without regard to their order. Meaning is derived from the specific associations, thus the schema is included with the data. They are also called associative, keyed, labeled, mapped or named structures, or dictionaries, maps or objects.
 
-Finally, this document is a practical guide, not a theoretical or academic analysis. It also presumes that the reader has a basic working knowledge of both XML and JSON.
+Finally, we would like to emphasize that this document is a practical guide, not a theoretical or academic analysis. It also presumes that the reader has a basic working knowledge of both XML and JSON.
 
 ## Anatomy of XML
 
@@ -70,7 +70,7 @@ The element has attributes but no element content. This is equivalent to an obje
 > ```
 
 > [!CAUTION]
-> The official name for a self-closing tag is empty element, which is demonstrably incorrect terminology. 'Empty' elements can, in fact hold data as nominal members, they just don't hold any ordinal members. We will avoid this terminology as it is highly misleading, especially in glaring examples like this (and even more so in HTML):
+> The official name for a self-closing tag is empty element, which is demonstrably incorrect terminology. "Empty" elements can, in fact hold data as nominal members, they just don't hold any ordinal members. We will avoid this terminology as it is highly misleading, especially in glaring examples like this (and even more so in HTML):
 > ```xml
 > <img src="image.png"/>
 > ```
@@ -227,7 +227,7 @@ This has the same problem, only it is now essentially a new language shoehorned 
 > ```
 
 ### Misuse an ordinal structure for nominal data
-This is often recommended as 'best' practice, even though this breaks our data model at a fundamental level.
+This is often recommended as "best" practice, even though this breaks our data model at a fundamental level.
 
 Suppose we convert the previous nominal data into an ordinal structure and add it to the element content:
 
@@ -284,7 +284,7 @@ The only difference is functionality: the first annotates an actual instance wit
 
 
 
-because common 'best' practices appear to lack any understanding of the concept of types and routinely confuse type declarations with keys or values.
+because common "best" practices appear to lack any understanding of the concept of types and routinely confuse type declarations with keys or values.
 
 ---
 rework this section
@@ -387,7 +387,7 @@ Or:
 
 This is exactly where <a href="http://www.sklar.com/badgerfish/">badgerfish</a>, a popular XML-to-JSON convention, gave up too.
 
-If we want true equivalence we would need to add type declarations to JSON. This is an interesting idea because it also demonstrates how badly the 'best' practice XML example actually performs:
+If we want true equivalence we would need to add type declarations to JSON. This is an interesting idea because it also demonstrates how badly the "best" practice XML example actually performs:
 
 ```pseudo-json
 note [
@@ -474,9 +474,9 @@ In contrast, JSON clearly defines a boundary between content and formatting: whi
 
 To put it simply, at best, whitespace bleeding makes XML unsuitable for storing structured data, at worst, it is a major design flaw of the language itself because it prevents XML from fulfilling one of <a href="https://www.w3.org/TR/xml/#sec-origin-goals">its stated objectives</a>: it is either "human-legible and reasonably clear" or "easy to process", but not both.
 
-## 'Best' Practice
+## "Best" Practice
 
-A common <a href="https://www.w3schools.com/xml/xml_attributes.asp">'best' practice example</a> demonstrates all previous points simultaneousy. This example dictates that we should avoid this:
+A common <a href="https://www.w3schools.com/xml/xml_attributes.asp">"best" practice example</a> demonstrates all previous points simultaneousy. This example dictates that we should avoid this:
 
 ```xml
 <note
