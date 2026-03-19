@@ -86,7 +86,8 @@ The element has element content and attributes. There is no equivalent in JSON, 
 <_ foo="bar">baz</_>
 ```
 
-1. An array nested into an object. In this case we need a surrogate property and a naming convention to avoid collision with an existing attribute. A common approach is to use a name that would be invalid as an attribute:
+##### 1. An array nested into an object.
+In this case we need a surrogate property and a naming convention to avoid collision with an existing attribute. A common approach is to use a name that would be invalid as an attribute:
 
 ```json
 {
@@ -95,7 +96,8 @@ The element has element content and attributes. There is no equivalent in JSON, 
 }
 ```
 
-2. An object nested into an array. In this case we need a convention to avoid ambiguity and define how we manipulate the indices within the element content:
+##### 2. An object nested into an array.
+In this case we need a convention to avoid ambiguity and define how we manipulate the indices within the element content:
 
 ```json
 [
