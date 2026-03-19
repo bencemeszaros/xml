@@ -2,7 +2,7 @@
 
 ## ABSTRACT
 
-XML is a bad choice as a data interchange format because it cannot faithfully represent structured data. This is because it does not support nesting in nominal structures, it misuses fundamental data models and conflates types with properties. In addition, it lacks a clear separation between formatting whitespace and actual data, leading to data corruption. In this document we demonstrate these inherent structural flaws by comparing XML to JSON, using trivial examples.
+XML is a bad choice as a data interchange format because it cannot faithfully represent structured data. This is because it does not support nesting inside nominal structures, it misuses fundamental data models and conflates types with properties. In addition, it lacks a clear separation between formatting whitespace and actual data, leading to data corruption. In this document we demonstrate these inherent structural flaws by comparing XML to JSON, using trivial examples.
 
 ## Introduction
 
@@ -33,7 +33,7 @@ From a data standpoint we can say that XML supports only one default type `strin
 > <_></_>
 > ```
 
-### Element Variations
+## Element Variations
 
 There are exactly four possible variations of an XML element:
 - ordinal part only;
@@ -186,7 +186,7 @@ Suppose we have the following simple XML fragment:
 <_ name="John Doe"/>
 ```
 
-If we want to store the name as a complex type like `<name first="John" last="Doe"/>`, we cannot simply plug this into the `name` attribute, we have to flatten it into one or multiple attributes, collapse it into a `string` or misuse an ordinal structure for this data, none of which is a viable solution.
+If we want to store the name as a complex type like `<name first="John" last="Doe"/>`, we cannot simply plug this into the `name` attribute, we have to flatten it into multiple attributes, collapse it into a `string`, or misuse an ordinal structure for this data, none of which is a viable solution.
 
 ### Flatten complex data into multiple attributes
 This workaround quickly gets out of hand as the depth grows:
@@ -205,23 +205,28 @@ This has the same problem, only it is now essentially a new language shoehorned 
 > [!NOTE]
 > This is essentially what inline CSS is in HTML. The following example is a deeply nested example of a nominal structure that cannot be expressed in HTML:
 > ```html
-> <div style="transition: background-color 0.3s cubic-bezier(0.68,-0.6,0.32,1.6) 0.1s;"></div>
+> <div style="transition: background-color 0.3s ease, transform 0.3s ease, opacity 0.5s linear;"></div>
 > ```
 > ```json
 > {
 >   "style": {
->     "transition":  {
->       "property": "background-color",
->       "duration": 0.3,
->       "timing": {
->         "type": "cubic-bezier",
->         "x1": 0.68,
->         "y1": -0.6,
->         "x2": 0.32,
->         "y2": 1.6
->       },
->       "delay": 0.1
->     }
+>     "transition":  [
+>       [
+>         "background-color",
+>         "0.3s",
+>         "ease"
+>       ],
+>       [
+>         "transform",
+>         "0.3s",
+>         "ease"
+>       ],
+>       [
+>         "opacity",
+>         "0.5s",
+>         "linear"
+>       ]
+>     ]
 >   }
 > }
 > ```
@@ -255,7 +260,7 @@ root.getElementsByTagName("last-name")[0].textContent; //maybe "Doe", maybe not
 
 Regardless of what we try, we can never be sure that the first, second or nth child or element with the requested tag name is going to be what we need, it is essentially a constant guessing game. In addition, we always need to use a final `textContent` or something similar to actually get the data we need and even without this our code is practically unreadable.
 
-This problem is subtle and deceptive since it is easy to encode a nominal structure into an ordinal structure, but it is extremely hard to decode an ordinal structure back to the original nominal structure. If you only care about encoding, you'll probably never realize this fundamental problem.
+This problem is very subtle and highly deceptive since it is easy to encode a nominal structure into an ordinal structure, but it is extremely hard to decode an ordinal structure back to the original nominal structure. If you only care about encoding, you'll probably never realize this fundamental problem.
 
 To put it simply, we can either use a nominal structure with direct access but no nesting, or use an ordinal structure with nesting but no direct access. The question shifts from "is it ordinal or nominal data" to "do we want nesting or not".
 
@@ -288,7 +293,6 @@ because common "best" practices appear to lack any understanding of the concept 
 
 ---
 rework this section
-- once we mix in nominal data into an ordinal model, it is practically impossible to separate the two
 
 (## Keys or Values)
 
@@ -353,13 +357,13 @@ Or:
 }
 ```
 
-- Text nodes mixed with child elements don't even have a possible workaround:
+- Text nodes mix with child elements and this problem doesn't even have a possible workaround:
 
 ```xml
 <_ text="foo"><a>bar</a>baz</_>
 ```
 
-- The best option is to add a surrogate property for text nodes as well, but even if we avoid clashing with an existing attribute, once we separate child elements and text nodes we cannot reconstruct their original order (the conversion is lossy):
+The best we can do is to add a surrogate property for text nodes as well, but even if we avoid clashing with an existing attribute, once we separate child elements and text nodes we cannot reconstruct their original order (the conversion is lossy):
 
 ```json
 {
@@ -371,7 +375,7 @@ Or:
 }
 ```
 
-- And if we keep their order, we cannot promote tag names to properties (we are back to square one):
+And if we keep their order, we cannot promote tag names to properties (we are back to square one):
 
 ```json
 {
@@ -402,9 +406,6 @@ note [
   body ["Don't forget me this weekend!"]
 ]
 ```
----
-
-<br>
 
 ## Whitespace Bleeding
 
@@ -578,4 +579,4 @@ And here is what they actually ended up with instead:
 We can give much better advice:
 
 > [!IMPORTANT]
-> XML should be avoided as a data interchange format because it does not allow nesting in nominal structures, it forces nominal data into ordinal structures, it conflates types with properties and corrupts data with code-formatting whitespace—none of which has a viable workaround.
+> XML should be avoided as a data interchange format because it does not allow nesting inside nominal structures, it forces nominal data into ordinal structures, it conflates types with properties and corrupts data with code-formatting whitespace—none of which has a viable workaround.
