@@ -35,7 +35,7 @@ From a data standpoint we can say that XML supports only one default type `strin
 
 ## Element Variations
 
-There are exactly four possible variations of an XML element:
+Based on the model of ordinal and nominal structures, there are exactly four possible variations of an XML element:
 - ordinal part only;
 - nominal part only;
 - both ordinal and nominal parts; and
@@ -43,7 +43,7 @@ There are exactly four possible variations of an XML element:
 
 ### Ordinal part only
 
-The element has element content but no attributes. This is equivalent to an array:
+The first option is when the element has element content but no attributes. This is equivalent to an array:
 
 ```xml
 <_>foo</_>
@@ -54,7 +54,7 @@ The element has element content but no attributes. This is equivalent to an arra
 
 ### Nominal part only
 
-The element has attributes but no element content. This is equivalent to an object:
+The second option is when the element has attributes but no element content. This is equivalent to an object:
 
 ```xml
 <_ foo="bar"></_>
@@ -77,7 +77,7 @@ The element has attributes but no element content. This is equivalent to an obje
 
 ### Both ordinal and nominal parts
 
-The element has element content and attributes. There is no equivalent in JSON, we can only approximate this variation with a combination of an array and an object, but it is ambiguous:
+The third option is when the element has both element content and attributes. There is no equivalent in JSON, we can only approximate this variation with a combination of an array and an object, but it is ambiguous:
 
 ```xml
 <_ foo="bar">baz</_>
@@ -165,7 +165,7 @@ True equivalence would be a new hybrid structure in JSON that merges, not combin
 
 ### Neither ordinal nor nominal part
 
-The element doesn't have element content or attributes. The equivalence here is also ambiguous: it can be either an empty array, an empty object or even other JSON data types. This is the true empty element. It is perfectly valid in XML and it does have a use case, for example the boolean type in <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/DevPedia-CocoaCore/PropertyList.html#//apple_ref/doc/uid/TP40008195-CH44-SW2" target="_blank">plist files</a>:
+The fourth and last option is when the element doesn't have element content or attributes. The equivalence here is also ambiguous: it can be either an empty array, an empty object or even other JSON data types. This is the true empty element. It is perfectly valid in XML and it does have a use case, for example the boolean type in <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/DevPedia-CocoaCore/PropertyList.html#//apple_ref/doc/uid/TP40008195-CH44-SW2" target="_blank">plist files</a>:
 
 ```xml
 <true/>
@@ -311,7 +311,7 @@ Suppose we promote tag names to keys on the parent object. This is possible with
 
 However, the root element has no parent, the surrogate keys can clash with existing attributes, it is entirely possible that an element has multiple children with the same tag name and that it has text nodes along with its element children.
 
-- Surrogate root element alters our graph:
+- Surrogate root element alters our graph
 
 ```xml
 <a/>
@@ -322,7 +322,7 @@ However, the root element has no parent, the surrogate keys can clash with exist
 }
 ```
 
-- Surrogate tag properties clash with attribute properties and the workaround is ambiguous:
+- Surrogate tag properties clash with attribute properties and the workaround is ambiguous
 
 ```xml
 <_ a="foo"><a/></_>
@@ -391,7 +391,7 @@ And if we keep their order, we cannot promote tag names to properties (we are ba
 
 This is exactly where <a href="http://www.sklar.com/badgerfish/">badgerfish</a>, a popular XML-to-JSON convention, gave up too.
 
-If we want true equivalence we would need to add type declarations to JSON. This is an interesting idea because it also demonstrates how badly the "best" practice XML example actually performs:
+If we want true equivalence we would need to add type declarations to JSON. (This is an interesting idea because it also demonstrates how badly the "best" practice XML example actually performs:)
 
 ```pseudo-json
 note [
