@@ -260,13 +260,13 @@ root.getElementsByTagName("last-name")[0].textContent; //maybe "Doe", maybe not
 
 Regardless of what we try, we can never be sure that the first, second or nth child or element with the requested tag name is going to be what we need, it is essentially a constant guessing game. In addition, we always need to use a final `textContent` or something similar to actually get the data we need and even without this our code is practically unreadable.
 
-This problem is very subtle and highly deceptive since it is easy to encode a nominal structure into an ordinal structure, but it is extremely hard to decode an ordinal structure back to the original nominal structure. If you only care about encoding, you'll probably never realize this fundamental problem.
+This problem is very subtle and highly deceptive since it is easy to encode a nominal structure into an ordinal structure, but it is extremely hard to decode an ordinal structure back into the original nominal structure. If you only care about encoding, you'll probably never realize this fundamental problem.
 
-To put it simply, we can either use a nominal structure with direct access but no nesting, or use an ordinal structure with nesting but no direct access. The question shifts from "is it ordinal or nominal data" to "do we want nesting or not".
+To put it simply, we can either use a nominal structure with direct access but no nesting, or use an ordinal structure with nesting but no direct access. The question shifts from "do we want ordinal or nominal structure" to "do we want nesting or not".
 
 ## Type Misuse
 
-But pushing nominal data into ordinal structures has another unintended consequence: it forces us to misuse types as well.
+But pushing nominal data into an ordinal structure has another unintended consequence: it forces us to misuse types as well.
 
 In XML, tag names are essentially type declarations. We can demonstrate this by comparing an XML element to a JS class. A simple XML element like this:
 
@@ -283,20 +283,9 @@ class person {
 }
 ```
 
-The only difference is functionality: the first annotates an actual instance with type information while the second merely describes the shape of this type with some default values. Na elolvastad te buzi? However, in both cases the `person` declaration is neither a key nor a value, but a third, distinct concept. This distinction is important,
+The only difference is functionality: the first annotates an actual instance with type information while the second merely describes the shape of this type with some default values. Na elolvastad te buzi? However, in both cases the `person` declaration is neither a key nor a value, but a third, distinct concept. This distinction is important, because common "best" practices appear to lack any understanding of the concept of types and routinely confuse type declarations with keys or values.
 
-
-
-
-
-because common "best" practices appear to lack any understanding of the concept of types and routinely confuse type declarations with keys or values.
-
----
-rework this section
-
-(## Keys or Values)
-
-Unfortunately, JSON does not support any form of explicit type declarations, so ironically we have to map tag names either to a key or to a value. Again, the naive assumption is that now we can revert the ordinal structure back to a nominal structure as it was originally intended, but it is only possible in a rare and exceptional situation and even that has major downsides.
+To demonstrate this, let's convert XML to JSON but this time with the intention to preserve tag names as well. Since JSON doesn't support any form of explicit type declarations, we do have to map tag names either to a key or to a value. If XML tag names could be considered keys or values, this conversion would yield the original data structure back, but this is obviously not the case.
 
 Suppose we promote tag names to keys on the parent object. This is possible with extremely simple elements:
 
@@ -309,7 +298,7 @@ Suppose we promote tag names to keys on the parent object. This is possible with
 }
 ```
 
-However, the root element has no parent, the surrogate keys can clash with existing attributes, it is entirely possible that an element has multiple children with the same tag name and that it has text nodes along with its element children.
+However, in any other cases we face a litany of issues: the root element has no parent, the surrogate keys can clash with existing attributes, it is entirely possible that an element has multiple children with the same tag name and that it has text nodes along with its element children.
 
 - Surrogate root element alters our graph
 
