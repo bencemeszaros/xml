@@ -41,7 +41,8 @@ There are exactly four possible variations of an XML element:
 - both ordinal and nominal parts; and
 - neither ordinal nor nominal part.
 
-#### Ordinal part only
+**Ordinal part only**
+
 The element has element content but no attributes. This is equivalent to an array:
 
 ```xml
@@ -51,7 +52,8 @@ The element has element content but no attributes. This is equivalent to an arra
 ["foo"]
 ```
 
-#### Nominal part only
+**Nominal part only**
+
 The element has attributes but no element content. This is equivalent to an object:
 
 ```xml
@@ -73,7 +75,8 @@ The element has attributes but no element content. This is equivalent to an obje
 > <img src="image.png"/>
 > ```
 
-#### Both ordinal and nominal parts
+**Both ordinal and nominal parts**
+
 The element has element content and attributes. There is no equivalent in JSON, we can only approximate this variation with a combination of an array and an object, but it is ambiguous:
 
 ```xml
@@ -160,7 +163,8 @@ True equivalence would be a new hybrid structure in JSON that merges, not combin
 > arr["bar"]; //"baz" (stored directly on the array)
 > ```
 
-#### Neither ordinal nor nominal part
+**Neither ordinal nor nominal part**
+
 The element doesn't have element content or attributes. The equivalence here is also ambiguous: it can be either an empty array, an empty object or even other JSON data types. This is the true empty element. It is perfectly valid in XML and it does have a use case, for example the boolean type in <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/DevPedia-CocoaCore/PropertyList.html#//apple_ref/doc/uid/TP40008195-CH44-SW2" target="_blank">plist files</a>:
 
 ```xml
@@ -172,7 +176,9 @@ true
 
 ## Nesting Limitation and Workarounds
 
-Now that we've established how XML implements ordinal and nominal structures, we can demonstrate how this implementation fails. Generally speaking the problem is, XML unnecessarily treats ordinal and nominal structures differently. One such example is that ordinal members can be of any type, while nominal members can only be of type `string`. This means that nominal members cannot be complex types, therefore cannot branch. This limitation has far reaching consequences.
+Now that we've established how XML implements ordinal and nominal structures, we can demonstrate how this implementation fails. Generally speaking the problem is, XML unnecessarily treats ordinal and nominal structures differently.
+
+One such example is that ordinal members can be of any type, while nominal members can only be of type `string`. This means that nominal members cannot be complex types, therefore cannot branch. This limitation has far reaching consequences.
 
 Suppose we have the following simple XML fragment:
 
