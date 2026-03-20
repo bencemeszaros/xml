@@ -186,24 +186,17 @@ Suppose we have the following simple XML fragment:
 <_ name="John Doe"/>
 ```
 
-If we want to store the name as a complex type like `<name first="John" last="Doe"/>`, we cannot simply plug this into the `name` attribute, we have to flatten it into multiple attributes, collapse it into a `string`, or misuse an ordinal structure for this data, none of which is a viable solution.
+If we want to store the name as a complex type like `<name first="John" last="Doe"/>`, we cannot simply plug this into the `name` attribute, we have to use a hack: we have to flatten it into a single `string`, explode it into multiple attributes, or misuse an ordinal structure for this data, none of which is a viable solution.
 
-### Flatten complex data into multiple attributes
-This workaround quickly gets out of hand as the depth grows:
-
-```xml
-<_ spouse-personal-name-current-legal-first="Jane" spouse-personal-name-current-legal-last="Doe"/>
-```
-
-### Collapse complex data into a `string`
-This has the same problem, only it is now essentially a new language shoehorned into XML and it even has to carefully mix, escape or avoid using `<`, `>`, `'`, `"` and `&`:
+### Flatten complex data into a single `string`
+This is essentially a new language with custom encoders/decoders shoehorned into XML and it even has to carefully mix, escape or avoid using `<`, `>`, `'`, `"` and `&`:
 
 ```xml
 <_ name='first: "John"; last: "Doe"'/>
 ```
 
 > [!NOTE]
-> This is essentially what inline CSS is in HTML. The following example is a deeply nested example of a nominal structure that cannot be expressed in HTML:
+> This is actually what inline CSS is in HTML. The following example is a deeply nested example of a nominal structure that cannot be expressed in HTML:
 > ```html
 > <div style="transition: background-color 0.3s ease, transform 0.3s ease, opacity 0.5s linear;"></div>
 > ```
@@ -231,8 +224,15 @@ This has the same problem, only it is now essentially a new language shoehorned 
 > }
 > ```
 
+### Explode complex data into multiple attributes
+The second option is to abuse attribute names instead. This workaround isn't much better either, especially if the depth of the original structure grows. But at least it is within XML:
+
+```xml
+<_ spouse-personal-name-current-legal-first="Jane" spouse-personal-name-current-legal-last="Doe"/>
+```
+
 ### Misuse an ordinal structure for nominal data
-This is often recommended as "best" practice, even though this breaks our data model at a fundamental level.
+The third option is to simply forget about attributes altogether and misuse the element content for this type of data. This is often the recommended "solution" for this limitation, even though it forces nominal data into an ordinal model that breaks our data model at a fundamental level.
 
 Suppose we convert the previous nominal data into an ordinal structure and add it to the element content:
 
@@ -245,7 +245,7 @@ Suppose we convert the previous nominal data into an ordinal structure and add i
 </_>
 ```
 
-This looks harmless, until we try to access for example the last name. Instead of this:
+This looks harmless, until we try to access for example the last name. Instead of simply this:
 
 ```js
 root.name.lastName; //"Doe"
@@ -258,15 +258,15 @@ root.children[0].children[1].textContent; //maybe "Doe", maybe not
 root.getElementsByTagName("last-name")[0].textContent; //maybe "Doe", maybe not
 ```
 
-Regardless of what we try, we can never be sure that the first, second or nth child or element with the requested tag name is going to be what we need, it is essentially a constant guessing game. In addition, we always need to use a final `textContent` or something similar to actually get the data we need and even without this our code is practically unreadable.
+Regardless of what we try, we can never be sure that the first, second or nth child or element with the requested tag name is going to be what we need, it is essentially a constant guessing game. In addition, we always need to use a final `textContent` or something similar to actually get the data and even without this step our code is already practically unreadable.
 
-This problem is very subtle and highly deceptive since it is easy to encode a nominal structure into an ordinal structure, but it is extremely hard to decode an ordinal structure back into the original nominal structure. If you only care about encoding, you'll probably never realize this fundamental problem.
+This problem is very subtle and highly deceptive since it is easy to encode a nominal structure into an ordinal structure, but it is extremely hard to decode it back into the original nominal structure. If you only care about encoding, you'll probably never realize this fundamental problem.
 
-To put it simply, we can either use a nominal structure with direct access but no nesting, or use an ordinal structure with nesting but no direct access. The question shifts from "do we want ordinal or nominal structure" to "do we want nesting or not".
+To put it simply, we can either use a nominal structure with direct access but no nesting, or use an ordinal structure with nesting but no direct access. XML forces us to shift our question from "do we want ordinal or nominal structure" to "do we want nesting or not".
 
 ## Type Misuse
 
-But pushing nominal data into an ordinal structure has another unintended consequence: it forces us to misuse types as well.
+Pushing nominal data into an ordinal structure has another unintended consequence: it forces us to misuse types as well.
 
 In XML, tag names are essentially type declarations. We can demonstrate this by comparing an XML element to a JS class. A simple XML element like this:
 
@@ -283,9 +283,9 @@ class person {
 }
 ```
 
-The only difference is functionality: the first annotates an actual instance with type information while the second merely describes the shape of this type with some default values. Na elolvastad te buzi? However, in both cases the `person` declaration is neither a key nor a value, but a third, distinct concept. This distinction is important, because common "best" practices appear to lack any understanding of the concept of types and routinely confuse type declarations with keys or values.
+The only difference is functionality: the first annotates an actual instance with type information while the second merely describes the shape of this type with some default values. However, in both cases the `person` declaration is neither a key nor a value, but a third, distinct concept. This distinction is important, because the common recommendation to prefer element content over attributes appears to lack any understanding of the concept of types and routinely confuse type declarations with keys or values.
 
-To demonstrate this, let's convert XML to JSON but this time with the intention to preserve tag names as well. Since JSON doesn't support any form of explicit type declarations, we do have to map tag names either to a key or to a value. If XML tag names could be considered keys or values, this conversion would yield the original data structure back, but this is obviously not the case.
+To demonstrate this, let's convert XML to JSON but this time preserve tag names as well. Since JSON doesn't support any form of explicit type declarations, we do have to map tag names either to a key or to a value. If XML tag names could be considered keys or values, this conversion would yield the original data structure back, but this is obviously not the case.
 
 Suppose we promote tag names to keys on the parent object. This is possible with extremely simple elements:
 
@@ -298,23 +298,18 @@ Suppose we promote tag names to keys on the parent object. This is possible with
 }
 ```
 
-However, in any other cases we face a litany of issues: the root element has no parent, the surrogate keys can clash with existing attributes, it is entirely possible that an element has multiple children with the same tag name and that it has text nodes along with its element children.
+However, even here, let alone in ay other cases, we face a litany of issues: the surrogate keys can clash with existing attributes, the root element has no parent, it is entirely possible that an element has multiple children with the same tag name and text nodes can freely mix with element children.
 
-- Surrogate root element alters our graph
-
-```xml
-<a/>
-```
-```json
-{
-  "a": {}
-}
-```
-
-- Surrogate tag properties clash with attribute properties and the workaround is ambiguous
+- Surrogate tag properties clash with attribute properties, so we have to alter either the original attributes or the new tag properties:
 
 ```xml
 <_ a="foo"><a/></_>
+```
+```json
+{
+  "@a": "foo",
+  "a": {}
+}
 ```
 ```json
 {
@@ -323,11 +318,13 @@ However, in any other cases we face a litany of issues: the root element has no 
 }
 ```
 
-Or:
+- The root element has no parent, so we need a surrogate root element that alters our graph:
 
+```xml
+<a/>
+```
 ```json
 {
-  "@a": "foo",
   "a": {}
 }
 ```
@@ -346,13 +343,13 @@ Or:
 }
 ```
 
-- Text nodes mix with child elements and this problem doesn't even have a possible workaround:
+- Text nodes mix with child elements, and it doesn't even have a possible workaround:
 
 ```xml
 <_ text="foo"><a>bar</a>baz</_>
 ```
 
-The best we can do is to add a surrogate property for text nodes as well, but even if we avoid clashing with an existing attribute, once we separate child elements and text nodes we cannot reconstruct their original order (the conversion is lossy):
+The best we can do is to add a surrogate property for text nodes as well, but even if we avoid clashing with an existing attribute once again, once we separate child elements and text nodes we cannot reconstruct their original order (the conversion is lossy):
 
 ```json
 {
@@ -380,19 +377,22 @@ And if we keep their order, we cannot promote tag names to properties (we are ba
 
 This is exactly where <a href="http://www.sklar.com/badgerfish/">badgerfish</a>, a popular XML-to-JSON convention, gave up too.
 
-If we want true equivalence we would need to add type declarations to JSON. (This is an interesting idea because it also demonstrates how badly the "best" practice XML example actually performs:)
+Another way to demonstrate how types differ from keys and values is by simply adding type declarations to JSON. This would bring JSON much closer to XML and clearly show that the XML model is not at all what its author wanted to achieve:
 
+```xml
+<xml>
+  <name>
+    <first-name>John</first-name>
+    <last-name>Doe</last-name>
+  </name>
+</xml>
+```
 ```pseudo-json
-note [
-  date [
-    day ["10"],
-    month ["01"],
-    year ["2008"]
-  ],
-  to ["Tove"],
-  from ["Jani"],
-  heading ["Reminder"],
-  body ["Don't forget me this weekend!"]
+xml [
+  name [
+    first-name ["John"],
+    last-name ["Doe"]
+  ]
 ]
 ```
 
