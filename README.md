@@ -300,7 +300,7 @@ Suppose we promote tag names to keys on the parent object. This is possible with
 
 However, even here, let alone in ay other cases, we face a litany of issues: the surrogate keys can clash with existing attributes, the root element has no parent, it is entirely possible that an element has multiple children with the same tag name and text nodes can freely mix with element children.
 
-- Surrogate tag properties clash with attribute properties, so we have to alter either the original attributes or the new tag properties:
+- To avoid surrogate tag properties to clash with attribute properties we have to alter either the original attributes or the new tag properties:
 
 ```xml
 <_ a="foo"><a/></_>
@@ -318,7 +318,7 @@ However, even here, let alone in ay other cases, we face a litany of issues: the
 }
 ```
 
-- The root element has no parent, so we need a surrogate root element that alters our graph:
+- To handle the tag name of the root element we need a surrogate root element that alters our graph:
 
 ```xml
 <a/>
@@ -329,7 +329,7 @@ However, even here, let alone in ay other cases, we face a litany of issues: the
 }
 ```
 
-- Multiple children with the same tag name needs a surrogate array that alters our graph once again:
+- To handle multiple children with the same tag name we need a surrogate array too that alters our graph once again:
 
 ```xml
 <_><a/><a/></_>
@@ -343,13 +343,13 @@ However, even here, let alone in ay other cases, we face a litany of issues: the
 }
 ```
 
-- Text nodes mix with child elements, and it doesn't even have a possible workaround:
+- And if text nodes mix with child elements we are stuck without any solution:
 
 ```xml
 <_ text="foo"><a>bar</a>baz</_>
 ```
 
-The best we can do is to add a surrogate property for text nodes as well, but even if we avoid clashing with an existing attribute once again, once we separate child elements and text nodes we cannot reconstruct their original order (the conversion is lossy):
+The best we can do here is to add a surrogate property for text nodes as well, but even if we avoid clashing with an existing attribute once again, once we separate child elements and text nodes we cannot reconstruct their original order (the conversion is lossy):
 
 ```json
 {
