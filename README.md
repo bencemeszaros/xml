@@ -349,7 +349,7 @@ However, even here, let alone in ay other cases, we face a litany of issues: the
 <_ text="foo"><a>bar</a>baz</_>
 ```
 
-The best we can do here is to add a surrogate property for text nodes as well, but even if we avoid clashing with an existing attribute once again, once we separate child elements and text nodes we cannot reconstruct their original order (the conversion is lossy):
+The best we can do here is to add a surrogate property for text nodes as well, but even if we avoid clashing with an existing attribute, once we separate child elements and text nodes we cannot reconstruct their original order (the conversion is lossy):
 
 ```json
 {
@@ -365,12 +365,13 @@ And if we keep their order, we cannot promote tag names to properties (we are ba
 
 ```json
 {
+  "text": "foo",
   "@children": [
     {
       "@type": "a",
-      "@children": ["foo"]
+      "@children": ["bar"]
     },
-    "bar"
+    "baz"
   ]
 }
 ```
