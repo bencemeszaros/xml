@@ -232,9 +232,11 @@ Another option is to explode complex data into multiple attributes instead. This
 ```
 
 ### Misuse references
-We can also try to mimic nesting with references, but a reference is not only a much more complicated substitute for direct nesting, XML even struggles to agree on how references should work. We have DTD based references (`ID`/`IDREF`/`IDREFS`), XML Schema based references (`xs:ID`/`xs:IDREF`/`xs:IDREFS`), native XML based references (`xml:id`, URI reference, XLink) and we can even implement our own system, all with vastly different features and complexity.
+We can also try to mimic nesting with references, but a reference is not only a much more complicated substitute for direct nesting, XML even struggles to agree on how references should work.
 
-Even if we employ the simplest possible reference system, it is still unnecesary complexity, it alters our graph and deteriorates readability:
+We have DTD based references (`ID`/`IDREF`/`IDREFS`), XML Schema based references (`xs:ID`/`xs:IDREF`/`xs:IDREFS`), native XML based references (`xml:id`, URI reference, XLink) and we can even implement our own system, all with vastly different features and complexity.
+
+Even if we employ the simplest possible reference system, it is still unnecessary complexity, it deteriorates readability and alters our graph by changing a parent-child relationship to a sibling relationship:
 
 ```xml
 <xml>
