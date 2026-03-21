@@ -188,8 +188,8 @@ Suppose we have the following simple XML fragment:
 
 If we want to store the name as a complex type like `<name first="John" last="Doe"/>`, we cannot simply plug this into the `name` attribute, we have to use a hack: we have to flatten it into a single `string`, explode it into multiple attributes, misuse references for nesting or misuse an ordinal structure for this data, none of which is a viable solution.
 
-### Flatten complex data into a single `string`
-This is essentially a new language with custom encoders/decoders shoehorned into XML and it even has to carefully mix, escape or avoid using `<`, `>`, `'`, `"` and `&`:
+### Abuse attribute values
+One option is to flatten complex data into a single `string`. This is essentially a new language with custom encoders/decoders shoehorned into XML and it even has to carefully mix, escape or avoid using `<`, `>`, `'`, `"` and `&`:
 
 ```xml
 <_ name='first: "John"; last: "Doe"'/>
@@ -224,14 +224,14 @@ This is essentially a new language with custom encoders/decoders shoehorned into
 > }
 > ```
 
-### Explode complex data into multiple attributes
-Another option is to abuse attribute names instead. This workaround isn't much better either, especially if the depth of the original structure grows. But at least it is within XML:
+### Abuse attribute names
+Another option is to explode complex data into multiple attributes instead. This workaround isn't much better either, especially if the depth of the original structure grows. But at least it is within XML:
 
 ```xml
 <_ spouse-personal-name-current-legal-first="Jane" spouse-personal-name-current-legal-last="Doe"/>
 ```
 
-### Misuse references for nesting
+### Misuse references
 We can also try to mimic nesting with references, but a reference is not only a much more complicated substitute for direct nesting, XML even struggles to agree on how references should work. We have DTD based references (`ID`/`IDREF`/`IDREFS`), XML Schema based references (`xs:ID`/`xs:IDREF`/`xs:IDREFS`), native XML based references (`xml:id`, URI reference, XLink) and we can even implement our own system, all with vastly different features and complexity.
 
 Even if we employ the simplest possible reference system, it is still unnecesary complexity, it alters our graph and deteriorates readability:
