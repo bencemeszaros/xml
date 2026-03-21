@@ -186,7 +186,7 @@ Suppose we have the following simple XML fragment:
 <_ name="John Doe"/>
 ```
 
-If we want to store the name as a complex type like `<name first="John" last="Doe"/>`, we cannot simply plug this into the `name` attribute, we have to use a hack: we have to flatten it into a single `string`, explode it into multiple attributes, misuse references for nesting or misuse an ordinal structure for this data, none of which is a viable solution.
+If we want to store the name as a complex type like `<name first="John" last="Doe"/>`, we cannot simply plug this into the `name` attribute, we have to use a hack: flatten it into a single `string`, explode it into multiple attributes, substitute nesting with references or push it into an ordinal structure, none of which is a viable solution.
 
 ### Abuse attribute values
 One option is to flatten complex data into a single `string`. This is essentially a new language with custom encoders/decoders shoehorned into XML and it even has to carefully mix, escape or avoid using `<`, `>`, `'`, `"` and `&`:
@@ -243,7 +243,7 @@ Even if we employ the simplest possible reference system, it is still unnecesary
 </xml>
 ```
 
-### Misuse ordinal structure for nominal data
+### Misuse ordinal structures
 The last option is to simply forget about attributes altogether and misuse the element content for this type of data. This is often the recommended "solution" for this limitation, even though it forces nominal data into an ordinal model that breaks our data model at a fundamental level.
 
 Suppose we convert the previous nominal data into an ordinal structure and add it to the element content:
