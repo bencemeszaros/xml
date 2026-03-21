@@ -186,7 +186,7 @@ Suppose we have the following simple XML fragment:
 <_ name="John Doe"/>
 ```
 
-If we want to store the name as a complex type like `<name first="John" last="Doe"/>`, we cannot simply plug this into the `name` attribute, we have to use a hack: we have to flatten it into a single `string`, explode it into multiple attributes, or misuse an ordinal structure for this data, none of which is a viable solution.
+If we want to store the name as a complex type like `<name first="John" last="Doe"/>`, we cannot simply plug this into the `name` attribute, we have to use a hack: we have to flatten it into a single `string`, explode it into multiple attributes, misuse references for nesting or misuse an ordinal structure for this data, none of which is a viable solution.
 
 ### Flatten complex data into a single `string`
 This is essentially a new language with custom encoders/decoders shoehorned into XML and it even has to carefully mix, escape or avoid using `<`, `>`, `'`, `"` and `&`:
@@ -225,14 +225,26 @@ This is essentially a new language with custom encoders/decoders shoehorned into
 > ```
 
 ### Explode complex data into multiple attributes
-The second option is to abuse attribute names instead. This workaround isn't much better either, especially if the depth of the original structure grows. But at least it is within XML:
+Another option is to abuse attribute names instead. This workaround isn't much better either, especially if the depth of the original structure grows. But at least it is within XML:
 
 ```xml
 <_ spouse-personal-name-current-legal-first="Jane" spouse-personal-name-current-legal-last="Doe"/>
 ```
 
-### Misuse an ordinal structure for nominal data
-The third option is to simply forget about attributes altogether and misuse the element content for this type of data. This is often the recommended "solution" for this limitation, even though it forces nominal data into an ordinal model that breaks our data model at a fundamental level.
+### Misuse references for nesting
+We can also try to mimic nesting with references, but a reference is not only a much more complicated substitute for direct nesting, XML even struggles to agree on how references should work. We have DTD based references (`ID`/`IDREF`/`IDREFS`), XML Schema based references (`xs:ID`/`xs:IDREF`/`xs:IDREFS`), native XML based references (`xml:id`, URI reference, XLink) and we can even implement our own system, all with vastly different features and complexity.
+
+Even if we employ the simplest possible reference system, it is still unnecesary complexity, it alters our graph and deteriorates readability:
+
+```xml
+<xml>
+  <_ name="#p1"/>
+  <_ id="p1" first="John" last="Doe"/>
+</xml>
+```
+
+### Misuse ordinal structure for nominal data
+The last option is to simply forget about attributes altogether and misuse the element content for this type of data. This is often the recommended "solution" for this limitation, even though it forces nominal data into an ordinal model that breaks our data model at a fundamental level.
 
 Suppose we convert the previous nominal data into an ordinal structure and add it to the element content:
 
@@ -266,7 +278,7 @@ To put it simply, we can either use a nominal structure with direct access but n
 
 ## Type Misuse
 
-Pushing nominal data into an ordinal structure has another unintended consequence: it forces us to misuse types as well.
+If we do convert nominal data into an ordinal structure we face yet another unintended consequence: we have to misuse types as well.
 
 In XML, tag names are essentially type declarations. We can demonstrate this by comparing an XML element to a JS class. A simple XML element like this:
 
@@ -287,7 +299,7 @@ The only difference is functionality: the first annotates an actual instance wit
 
 To demonstrate this, let's convert XML to JSON but this time preserve tag names as well. Since JSON doesn't support any form of explicit type declarations, we do have to map tag names either to a key or to a value. If XML tag names could be considered keys or values, this conversion would yield the original data structure back, but this is obviously not the case.
 
-Suppose we promote tag names to keys on the parent object. This is possible with extremely simple elements:
+Suppose we promote tag names to keys on the parent object. This is possible in extremely simple situations:
 
 ```xml
 <_><a/></_>
@@ -298,7 +310,7 @@ Suppose we promote tag names to keys on the parent object. This is possible with
 }
 ```
 
-However, even here, let alone in ay other cases, we face a litany of issues: the surrogate keys can clash with existing attributes, the root element has no parent, it is entirely possible that an element has multiple children with the same tag name and text nodes can freely mix with element children.
+However, even here, let alone in any other cases, we face a litany of issues: the surrogate keys can clash with existing attributes, the root element has no parent, it is entirely possible that an element has multiple children with the same tag name and text nodes can freely mix with element children.
 
 - To avoid surrogate tag properties to clash with attribute properties we have to alter either the original attributes or the new tag properties:
 
@@ -361,7 +373,7 @@ The best we can do here is to add a surrogate property for text nodes as well, b
 }
 ```
 
-And if we keep their order, we cannot promote tag names to properties (we are back to square one):
+And if we keep their order we cannot promote tag names to properties, preventing us from using tag names as keys:
 
 ```json
 {
@@ -378,7 +390,7 @@ And if we keep their order, we cannot promote tag names to properties (we are ba
 
 This is exactly where <a href="http://www.sklar.com/badgerfish/">badgerfish</a>, a popular XML-to-JSON convention, gave up too.
 
-Another way to demonstrate how types differ from keys and values is by simply adding type declarations to JSON. This would bring JSON much closer to XML and clearly show that the XML model is not at all what its author wanted to achieve:
+But an even simpler way to demonstrate how types differ from keys and values is by simply adding type declarations to JSON. This would bring JSON much closer to XML and clearly show that the XML model is not at all what its author wanted to achieve:
 
 ```xml
 <xml>
