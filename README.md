@@ -174,11 +174,203 @@ The fourth and last option is when the element doesn't have element content or a
 true
 ```
 
-## Nesting Limitation and Workarounds
+Now that we've established how XML implements ordinal and nominal structures, we can demonstrate how this implementation fails.
 
-Now that we've established how XML implements ordinal and nominal structures, we can demonstrate how this implementation fails. Generally speaking the problem is, XML unnecessarily treats ordinal and nominal structures differently.
+## Ordinal Problems
 
-One such example is that ordinal members can be of any type, while nominal members can only be of type `string`. This means that nominal members cannot be complex types, therefore cannot branch. This limitation has far reaching consequences.
+Based on the model of ordinal structures, there are exactly four possible variations of the element content, ecah of them with varying levels of problems:
+- `string` only,
+- `elements` only, and
+- both `string(s)` and `elements`.
+
+In addition, they all suffer from whitespace bleeding, a major problem we will discuss later.
+
+### String only
+
+The first option is when the element content contains only `string`. Even though a string is in itself ordinal data and the element content is an ordinal structure, the problem here is that the element content merges all characters into a single `string`.
+
+Suppose we want to store the scores of a player. If we simply do this:
+
+```xml
+<scores>100, 87, 120</scores>
+```
+
+The values merge into a single string, essentially creating a new language we have to decode on top of XML. Instead of simply this:
+
+```json
+{
+  "scores": [100, 87, 120]
+}
+```
+
+We actually end up with this:
+
+```json
+{
+  "scores": ["100, 87, "120"]
+}
+```
+
+### Element Only
+
+The second option is when the element content contains only one or multiple `elements`. We can try to fix the previous example by wrapping each value in a separate `element` like this:
+
+```xml
+<scores><score>100</score><score>87</score><score>120</score></scores>
+```
+
+But this opens up a new set of problems on its own, mainly that the values inside `<score>` are still single strings, we just added another layer of unnecessary complexity to our model. This becomes apparent when we try to decode this fragment.
+
+To access the first score, for example, we need to do this:
+
+```js
+scores.children[0].textContent; //"100"
+```
+
+Even though what we would expect logically is this:
+
+```js
+scores[0]; //100
+```
+
+This also means we need to process `string` only and `element` only cases differently.
+
+(type misuse?)
+
+### Both String(s) and Elements
+
+The third, and final option is when the element content contains an arbitraty mix of `string(s)` and `elements`. This is the most complicated case, again from a decoding perspective, and it presents a dilemma with no resolution.
+
+Suppose we have an XML like this:
+
+```xml
+<p>This is an <bold>ordinal</bold> structure.</p>
+```
+
+If we want to process this fragment we only have two options, both of which are equally bad.
+
+We can either keep the `string(s)` together with the `elements` to preserve their order, but then we lose direct access to the `elements`:
+
+```json
+{
+  "children": [
+    "This is an ",
+    {
+      "type": "bold",
+      "children": ["ordinal"]
+    },
+    " structure."
+  ]
+}
+```
+
+Or we can keep direct access to the `elements`, but then we lose their order, in other words the processing of XML is lossy:
+
+```json
+{
+  "textContent": "This is an  structure.",
+  "children": {
+    "type": "bold",
+    "textContent": "ordinal"
+  }
+}
+```
+
+In the second option we don't even know whether we should keep all remaining text together as a single `string`, or separate it into multiple `strings` like this:
+
+```json
+{
+  "textContent": ["This is an ", " structure."],
+  "children": {
+    "type": "bold",
+    "textContent": "ordinal"
+  }
+}
+```
+
+This problem stems from using XML for something it clearly wasn't designed for. If we consider it as a document format the first decoding is appropriate but if we consider it as a generic data format, then the second.
+
+Unfortunately, XML has no way of telling us which paradigm it uses and the two can freely mix even within the same file.
+
+This is exactly where <a href="http://www.sklar.com/badgerfish/">badgerfish</a>, a popular XML-to-JSON convention, gave up too.
+
+### Whitespace Bleeding
+
+An even bigger problem affecting all three previously discussed options is whitespace bleeding that has far reaching consequences.
+
+In general, XML treats whitespace in the attribute list around names and values as formatting and thus it is always discarded, but in the element content it is treated as actual content and always fully preserved by default.
+
+This inconsistency means that for example the following two examples are equivalent:
+
+```xml
+<_ foo="bar"/>
+```
+```xml
+<_
+  foo
+    =
+      "bar"
+        />
+```
+
+While the following two are not:
+
+```xml
+<_>foo</_>
+```
+```xml
+<_>
+  foo
+</_>
+```
+
+This becomes apparent if we faithfully convert the last example to a JSON array:
+
+```json
+["\n  foo\n"]
+```
+
+This also means that formatting whitespace can simply corrupt our data.
+
+Since XML provides no boundary between content and formatting, whitespace added simply to make the code readable for humans bleeds into and alters the actual data. Once content and formatting are mixed together it is practically impossible to separate the two.
+
+> [!CAUTION]
+> Whitespace bleeding is a significant issue in HTML as well. One common example is when inline-block elements are indented, for example when describing a horizontal menu:
+> ```html
+> <style>li {display: inline-block}</style>
+> <ul>
+>   <li>foo</li>
+>   <li>bar</li>
+>   <li>baz</li>
+> </ul>
+> ```
+> This renders as `foo` `bar` `baz` instead of `foobarbaz` because formatting whitespace between elements is preserved as content. To keep the semblance of indentation but remove unwanted whitespace, one approach exploits the very inconsistency we just described:
+> ```html
+> <ul
+>   ><li>foo</li
+>   ><li>bar</li
+>   ><li>baz</li
+> ></ul>
+> ```
+> We leave it to the reader to decide whether this or any similar trick can be classified as actual solution to this problem.
+
+In contrast, JSON clearly defines a boundary between content and formatting: whitespace added inside a `string` is fully preserved and whitespace added outside a `string` is fully discarded. There is no possibility of formatting whitespace corrupting the data:
+
+```json
+[
+  "foo"    ,
+                "bar"
+  ,    "baz"
+    ]
+```
+
+To put it simply, at best, whitespace bleeding makes XML unsuitable for storing structured data, at worst, it is a major design flaw of the language itself because it prevents XML from fulfilling one of <a href="https://www.w3.org/TR/xml/#sec-origin-goals">its stated objectives</a>: it is either "human-legible and reasonably clear" or "easy to process", but not both.
+
+## Nominal Problems
+
+The attribute list poses its own problems too.
+
+As opposed to ordinal members, nominal members can only be of type `string`. This means that nominal members cannot be complex types, therefore cannot branch. This limitation also has far reaching consequences.
 
 Suppose we have the following simple XML fragment:
 
@@ -189,7 +381,7 @@ Suppose we have the following simple XML fragment:
 If we want to store the name as a complex type like `<name first="John" last="Doe"/>`, we cannot simply plug this into the `name` attribute, we have to use a hack: flatten it into a single `string`, explode it into multiple attributes, substitute nesting with references or push it into an ordinal structure, none of which is a viable solution.
 
 ### Abuse attribute values
-One option is to flatten complex data into a single `string`. This is essentially a new language with custom encoders/decoders shoehorned into XML and it even has to carefully mix, escape or avoid using `<`, `>`, `'`, `"` and `&`:
+One option is to flatten complex data into a single `string`. This is essentially a new language with custom encoders/decoders shoehorned into XML, just like the merged text in the element content, and it even has to carefully mix, escape or avoid using `<`, `>`, `'`, `"` and `&`:
 
 ```xml
 <_ name='first: "John"; last: "Doe"'/>
@@ -234,9 +426,9 @@ Another option is to explode complex data into multiple attributes instead. This
 ### Misuse references
 We can also try to mimic nesting with references, but a reference is not only a much more complicated substitute for direct nesting, XML even struggles to agree on how references should work.
 
-We have DTD based references (`ID`/`IDREF`/`IDREFS`), XML Schema based references (`xs:ID`/`xs:IDREF`/`xs:IDREFS`), native XML based references (`xml:id`, URI reference, XLink) and we can even implement our own system, all with vastly different features and complexity.
+We have DTD based references (`ID`/`IDREF`/`IDREFS`), XML Schema based references (`xs:ID`/`xs:IDREF`/`xs:IDREFS`), native XML based references (`xml:id`, URI reference, XLink) and we can even implement our own system, all with vastly different features, problems and complexity.
 
-Even if we employ the simplest possible reference system, it is still unnecessary complexity, it deteriorates readability and alters our graph by changing a parent-child relationship to a sibling relationship:
+Even if we employ the simplest possible reference system, it is still unnecessary complexity, it deteriorates readability and alters our graph by breaking a simple parent-child relationship:
 
 ```xml
 <xml>
@@ -288,7 +480,7 @@ In XML, tag names are essentially type declarations. We can demonstrate this by 
 <person name="John Doe" age="30" />
 ```
 
-is structurally equivalent to this:
+Is structurally equivalent to this:
 
 ```js
 class person {
@@ -357,7 +549,9 @@ However, even here, let alone in any other cases, we face a litany of issues: th
 }
 ```
 
-- And if text nodes mix with child elements we are stuck without any solution:
+- And if text nodes mix with child elements we are stuck without any solution (this was discussed previously):
+
+---
 
 ```xml
 <_ text="foo"><a>bar</a>baz</_>
@@ -392,6 +586,8 @@ And if we keep their order we cannot promote tag names to properties, preventing
 
 This is exactly where <a href="http://www.sklar.com/badgerfish/">badgerfish</a>, a popular XML-to-JSON convention, gave up too.
 
+---
+
 But an even simpler way to demonstrate how types differ from keys and values is by simply adding type declarations to JSON. This would bring JSON much closer to XML and clearly show that the XML model is not at all what its author wanted to achieve:
 
 ```xml
@@ -410,74 +606,6 @@ xml [
   ]
 ]
 ```
-
-## Whitespace Bleeding
-
-Whitespace handling is another area where XML treats ordinal and nominal structures differently. In the attribute list around names and values it is always treated as formatting and thus discarded, but in the element content it is always treated as actual content and fully preserved by default. This also has far reaching consequences.
-
-For example, the following two examples are equivalent:
-
-```xml
-<_ foo="bar"/>
-```
-```xml
-<_
-  foo
-    =
-      "bar"
-        />
-```
-
-But the following two are not:
-
-```xml
-<_>foo</_>
-```
-```xml
-<_>
-  foo
-</_>
-```
-
-This becomes apparent if we faithfully convert the last example to an array:
-
-```json
-["\n  foo\n"]
-```
-
-But beyond inconsistency and non-equivalence the biggest issue is data corruption. Since XML provides no boundary between content and formatting, whitespace added simply to make the code readable for humans bleeds into and alters the actual data. Once content and formatting are mixed together it is practically impossible to separate the two.
-
-> [!CAUTION]
-> Whitespace bleeding is a significant issue in HTML as well. One common example is when inline-block elements are indented, for example when describing a horizontal menu:
-> ```html
-> <style>li {display: inline-block}</style>
-> <ul>
->   <li>foo</li>
->   <li>bar</li>
->   <li>baz</li>
-> </ul>
-> ```
-> This renders as `foo` `bar` `baz` instead of `foobarbaz` because formatting whitespace between elements is preserved as content. To keep the semblance of indentation but remove unwanted whitespace, one approach exploits the very inconsistency we just described:
-> ```html
-> <ul
->   ><li>foo</li
->   ><li>bar</li
->   ><li>baz</li
-> ></ul>
-> ```
-> We leave it to the reader to decide whether this or any similar trick can be classified as actual solution to this problem.
-
-In contrast, JSON clearly defines a boundary between content and formatting: whitespace added inside a string is fully preserved and whitespace added outside a string is fully discarded. There is no possibility of formatting whitespace corrupting the data:
-
-```json
-[
-  "foo"    ,
-                "bar"
-  ,    "baz"
-    ]
-```
-
-To put it simply, at best, whitespace bleeding makes XML unsuitable for storing structured data, at worst, it is a major design flaw of the language itself because it prevents XML from fulfilling one of <a href="https://www.w3.org/TR/xml/#sec-origin-goals">its stated objectives</a>: it is either "human-legible and reasonably clear" or "easy to process", but not both.
 
 ## "Best" Practice
 
