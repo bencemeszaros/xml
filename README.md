@@ -185,7 +185,7 @@ Based on the model of ordinal structures, there are exactly four possible variat
 
 In addition, they all suffer from whitespace bleeding, a major problem we will discuss later.
 
-### String only
+### String Only
 
 The first option is when the element content contains only `string`. Even though a string is in itself ordinal data and the element content is an ordinal structure, the problem here is that the element content merges all characters into a single `string`.
 
