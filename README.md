@@ -364,7 +364,8 @@ In contrast, JSON clearly defines a boundary between content and formatting: whi
     ]
 ```
 
-To put it simply, at best, whitespace bleeding makes XML unsuitable for storing structured data, at worst, it is a major design flaw of the language itself because it prevents XML from fulfilling one of <a href="https://www.w3.org/TR/xml/#sec-origin-goals">its stated objectives</a>: it is either "human-legible and reasonably clear" or "easy to process", but not both.
+> [!IMPORTANT]
+> To put it simply, at best, whitespace bleeding makes XML unsuitable for storing structured data, at worst, it is a major design flaw of the language itself because it prevents XML from fulfilling one of <a href="https://www.w3.org/TR/xml/#sec-origin-goals">its stated objectives</a>: it is either "human-legible and reasonably clear" or "easy to process", but not both.
 
 ## Nominal Problems
 
@@ -468,7 +469,8 @@ Regardless of what we try, we can never be sure that the first, second or nth ch
 
 This problem is very subtle and highly deceptive since it is easy to encode a nominal structure into an ordinal structure, but it is extremely hard to decode it back into the original nominal structure. If you only care about encoding, you'll probably never realize this fundamental problem.
 
-To put it simply, we can either use a nominal structure with direct access but no nesting, or use an ordinal structure with nesting but no direct access. XML forces us to shift our question from "do we want ordinal or nominal structure" to "do we want nesting or not".
+> [!IMPORTANT]
+> To put it simply, we can either use a nominal structure with direct access but no nesting, or use an ordinal structure with nesting but no direct access. XML forces us to shift our question from "do we want ordinal or nominal structure" to "do we want nesting or not".
 
 ## Type Misuse
 
