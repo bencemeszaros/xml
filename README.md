@@ -195,7 +195,7 @@ Suppose we want to store the scores of a player. If we simply do this:
 <scores>100, 87, 120</scores>
 ```
 
-The values merge into a single string, essentially creating a new language we have to decode on top of XML. Instead of simply this:
+The values merge into a single string, essentially creating a new language we have to decode on top of XML. Therefore, instead of simply this:
 
 ```json
 {
@@ -213,7 +213,7 @@ We actually end up with this:
 
 ### Element Only
 
-The second option is when the element content contains only one or multiple `elements`. We can try to fix the previous example by wrapping each value in a separate `element` like this:
+The second option is when the element content contains only `elements`. We can try to fix the previous example by wrapping each value in a separate `element` like this:
 
 ```xml
 <scores><score>100</score><score>87</score><score>120</score></scores>
@@ -221,16 +221,16 @@ The second option is when the element content contains only one or multiple `ele
 
 But this opens up a new set of problems on its own, mainly that the values inside `<score>` are still single strings, we just added another layer of unnecessary complexity to our model. This becomes apparent when we try to decode this fragment.
 
-To access the first score, for example, we need to do this:
-
-```js
-scores.children[0].textContent; //"100"
-```
-
-Even though what we would expect logically is this:
+To access the first score, we cannot simply do this, as we would logically expect:
 
 ```js
 scores[0]; //100
+```
+
+We need to do this:
+
+```js
+scores.children[0].textContent; //"100"
 ```
 
 This also means we need to process `string` only and `element` only cases differently.
