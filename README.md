@@ -224,7 +224,7 @@ But this opens up a new set of problems on its own, mainly that the values insid
 To access the first score, we cannot simply do this, as we would logically expect:
 
 ```js
-scores[0]; //100
+scores[0];
 ```
 
 We need to do this:
