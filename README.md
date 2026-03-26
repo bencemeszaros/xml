@@ -179,8 +179,8 @@ Now that we've established how XML implements ordinal and nominal structures, we
 ## Ordinal Problems
 
 Based on the model of ordinal structures, there are exactly four possible variations of the element content, ecah of them with varying levels of problems:
-- `string` only,
-- `elements` only, and
+- `string` only;
+- `elements` only; and
 - both `string(s)` and `elements`.
 
 In addition, they all suffer from whitespace bleeding, a major problem we will discuss later.
@@ -207,7 +207,7 @@ We actually end up with this:
 
 ```json
 {
-  "scores": ["100, 87, "120"]
+  "scores": ["100, 87, 120"]
 }
 ```
 
