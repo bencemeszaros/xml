@@ -178,7 +178,7 @@ Now that we've established how XML implements ordinal and nominal structures, we
 
 ## Ordinal Problems
 
-Based on the model of ordinal structures, there are exactly four possible variations of the element content, ecah of them with varying levels of problems:
+Based on the model of ordinal structures, there are exactly three possible variations of the element content, ecah of them with varying levels of problems:
 - `string` only;
 - `elements` only; and
 - both `string(s)` and `elements`.
